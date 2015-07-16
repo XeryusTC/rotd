@@ -16,7 +16,7 @@ class HomePageRecipeTests(unittest.TestCase):
         self.assertIn('Recept van de dag', self.browser.title)
 
         # There is also a header on the page that says 'Recept van de dag'
-        header_text = self.browser.get_element_by_tag_name('h1')
+        header_text = self.browser.find_element_by_tag_name('h1')
         self.assertIn('Recept van de dag', header_text.text)
 
 if __name__ == "__main__":
