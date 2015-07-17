@@ -1,4 +1,7 @@
 from django.shortcuts import render
 
+from recipes.models import Recipe
+
 def home_page(request):
-    return render(request, 'recipes/home.html')
+    recipe = Recipe.objects.first()
+    return render(request, 'recipes/home.html', {'recipe': recipe})
