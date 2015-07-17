@@ -5,11 +5,21 @@ from django.db.utils import IntegrityError
 from recipes.models import Recipe
 
 class RecipeModelTests(TestCase):
-    def test_recipe_has_name(self):
-        r = Recipe(name='test') # Should not raise exception
+    def create_minimal_recipe(self, **kwargs):
+        values = {'name': 'Test recipe', 'description': 'test description'}
+        values.update(kwargs)
+        return Recipe(**values)
+
+    def test_recipe_has_name_and_description(self):
+        self.create_minimal_recipe() # Should not raise exception
 
     def test_recipe_name_required(self):
-        r = Recipe.objects.create(name='')
+        r = self.create_minimal_recipe(name='')
+        with self.assertRaises(ValidationError):
+            r.full_clean()
+
+    def test_recipe_description_required(self):
+        r = self.create_minimal_recipe(description='')
         with self.assertRaises(ValidationError):
             r.full_clean()
 
