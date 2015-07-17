@@ -1,7 +1,9 @@
-import unittest
+from django.test import LiveServerTestCase
 from selenium import webdriver
 
-class HomePageRecipeTests(unittest.TestCase):
+import recipes.factories
+
+class HomePageRecipeTests(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
 
@@ -9,8 +11,11 @@ class HomePageRecipeTests(unittest.TestCase):
         self.browser.close()
 
     def test_can_see_todays_recipe(self):
+        # Create a dummy recipe
+        recipes.factories.RecipeFactory()
+
         # Alice goes to our website
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
 
         # She notices that the title says 'Recept van de dag'
         self.assertIn('Recept van de dag', self.browser.title)
