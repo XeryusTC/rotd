@@ -11,6 +11,10 @@ class HomePageViewTest(TestCase):
         found = resolve('/')
         self.assertEqual(found.func, home_page)
 
+    def test_home_page_inherits_from_base_template(self):
+        response = self.client.get('/')
+        self.assertTemplateUsed(response, 'rotd/base.html')
+
     def test_home_page_uses_correct_template(self):
         request = HttpRequest()
         response = home_page(request)

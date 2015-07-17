@@ -1,14 +1,14 @@
-<html>
-<head>
-	<title>Recept van de dag</title>
-</head>
-<body>
+{% extends 'rotd/base.html' %}
 
+{% block page_title %}Recept van de dag{% endblock %}
+
+{% block content %}
 <h1>Recept van de dag</h1>
 
 <h2 id="recipe">{{ recipe.name }}</h2>
 
 <div id="description">{{ recipe.description }}</div>
+{% endblock content %}
 
 </body>
 </html>
