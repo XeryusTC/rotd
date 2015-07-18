@@ -16,10 +16,8 @@ class HomePageViewTest(TestCase):
         self.assertTemplateUsed(response, 'rotd/base.html')
 
     def test_home_page_uses_correct_template(self):
-        request = HttpRequest()
-        response = home_page(request)
-        expected = render_to_string('recipes/home.html')
-        self.assertEqual(response.content.decode(), expected)
+        response = self.client.get('/')
+        self.assertTemplateUsed(response, 'recipes/home.html')
 
     def test_home_page_has_recipe(self):
         Recipe.objects.create(name='test')
