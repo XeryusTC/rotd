@@ -1,15 +1,10 @@
 from django.test import LiveServerTestCase
 from selenium import webdriver
 
+from .base import FunctionalTestCase
 import recipes.factories
 
-class HomePageRecipeTests(LiveServerTestCase):
-    def setUp(self):
-        self.browser = webdriver.Firefox()
-
-    def tearDown(self):
-        self.browser.close()
-
+class HomePageRecipeTests(FunctionalTestCase):
     def test_can_see_todays_recipe(self):
         # Create a dummy recipe
         recipes.factories.RecipeFactory()

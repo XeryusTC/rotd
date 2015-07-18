@@ -2,15 +2,10 @@ from django.test import LiveServerTestCase
 from selenium import webdriver
 import selenium.common.exceptions
 
+from .base import FunctionalTestCase
 import recipes.factories
 
-class LayoutTest(LiveServerTestCase):
-    def setUp(self):
-        self.browser = webdriver.Firefox()
-
-    def tearDown(self):
-        self.browser.close()
-
+class LayoutTest(FunctionalTestCase):
     def test_bootstrap_files_are_loaded(self):
         # Load some default data
         recipes.factories.RecipeFactory()
