@@ -24,7 +24,6 @@ class DjangoAdminTests(FunctionalTestCase):
     def test_can_create_recipe_via_admin_site(self):
         # Set up admin accounts
         admin = DjangoAdminUserFactory()
-        print(User.objects.all())
         # Alice is an admin that wants to visit the admin page
         self.browser.get(self.live_server_url + '/admin/')
 
@@ -44,9 +43,22 @@ class DjangoAdminTests(FunctionalTestCase):
         body = self.browser.find_element_by_tag_name('body')
         self.assertIn('Site administration', body.text)
 
-        # She sees a couple of links of which one says "Recipe"
-        recipe_links = self.browser.find_elements_by_link_text("Recipe")
+        # She sees that she can edit recipes
+        recipe_links = self.browser.find_elements_by_link_text('Recipes')
         self.assertEqual(len(recipe_links), 2)
+        # She follows the link, sees there are no recipes and adds a recipe
+        recipe_links[1].click()
+        body = self.browser.find_element_by_tag_name('body')
+        self.assertIn('0 recipes', body.text)
+        self.browser.find_element_by_link_text('Add recipe').click()
 
-        # TODO: finish the testdd
-        self.fail('Finish test')
+        # A form appears and she fills it in
+        name_field = self.browser.find_element_by_name('name')
+        name_field.send_keys('Test recipe')
+        desc_field = self.browser.find_element_by_name('description')
+        desc_field.send_keys('This is a test description')
+        name_field.send_keys(Keys.RETURN)
+
+        # She sees that there is one recipe on the page
+        body = self.browser.find_element_by_tag_name('body')
+        self.assertIn('1 recipe', body.text)
