@@ -1,0 +1,16 @@
+[Unit]
+Description=Gunicorn server for SITENAME
+After=network.target
+
+[Service]
+PIDFile=/run/gunicorn/SITENAME.pid
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/sites/SITENAME/source
+ExecStart=/var/www/sites/SITENAME/virtualenv/bin/gunicorn \
+	--bind unix:/tmp/SITENAME.socket
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+
+[Install]
+WantedBy=multi-user.target
