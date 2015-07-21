@@ -1,4 +1,5 @@
 from fabric.api import env, local, prompt, settings, sudo, run
+from fabric.contrib.console import confirm
 from fabric.contrib.files import append, exists, sed
 from getpass import getpass
 import random
@@ -16,36 +17,12 @@ def provision():
             postgresql-server-dev-9.4')
     sudo('pip3 install virtualenv')
     _setup_variables(True)
-
-    # Test database if user exists, if not then create it
-    db_setup = sudo("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='%s'\"" \
-            % (db_user,), user='postgres') == '1'
-    if not db_setup:
-        sudo("psql -c \"CREATE USER %s WITH PASSWORD '%s'\"" % (db_user, db_pass),
-                user='postgres')
-    # Test if database is set up, if not create it and give user access
-    db_exists = sudo('psql -lqt | cut -d \| -f 1 | grep -w %s | wc -l' %
-            (db_name,), user='postgres') == '1'
-    if not db_exists:
-        sudo('psql -c "CREATE DATABASE %s"' % (db_name,), user='postgres')
-        sudo('psql -c "GRANT ALL PRIVILEGES ON DATABASE %s TO %s"' % (db_name,
-            db_user), user='postgres')
+    _setup_database()
 
     # Make sure all files are downloaded and Django is set up
     deploy()
 
-    # Set up nginx
-    run('cp %s/deploy_tools/nginx.conf.template /tmp/' % (source_folder,))
-    sed('/tmp/nginx.conf.template', 'SITENAME', env.host)
-    sudo('mv /tmp/nginx.conf.template /etc/nginx/sites-available/%s' % (
-        env.host,))
-
-    # set up systemd to run the gunicorn service
-    gunicorn_template = 'gunicorn-systemd.service.template'
-    run('cp %s/deploy_tools/%s /tmp/' % (source_folder, gunicorn_template))
-    sed('/tmp/%s' % (gunicorn_template,), 'SITENAME', env.host)
-    sudo('mv /tmp/%s /etc/systemd/system/gunicorn-%s.service' % (
-        gunicorn_template, env.host))
+    _build_and_deploy_system_files(source_folder)
 
 def deploy():
     _setup_variables()
@@ -72,6 +49,27 @@ def _setup_database_variables():
     db_name = prompt('Database name: ', default='rotd')
     db_user = prompt('Database user: ', default='rotd')
     db_pass = getpass('Database password: ')
+
+def _build_and_deploy_system_files(source_folder):
+    enable = confirm('Enable site?')
+    # set up systemd to run the gunicorn service
+    gunicorn_template = 'gunicorn-systemd.service.template'
+    run('cp %s/deploy_tools/%s /tmp/' % (source_folder, gunicorn_template))
+    sed('/tmp/%s' % (gunicorn_template,), 'SITENAME', env.host)
+    if enable:
+        sudo('mv /tmp/%s /etc/systemd/system/gunicorn-%s.service' % (
+            gunicorn_template, env.host))
+        sudo('systemctl enable gunicorn-%s.service' % (env.host,))
+        sudo('systemctl daemon-reload')
+        sudo('systemctl restart gunicorn-%s.service' % (env.host,))
+
+    # Set up nginx
+    run('cp %s/deploy_tools/nginx.conf.template /tmp/' % (source_folder,))
+    sed('/tmp/nginx.conf.template', 'SITENAME', env.host)
+    if enable:
+        sudo('mv /tmp/nginx.conf.template /etc/nginx/sites-available/%s' % (
+            env.host,))
+        sudo('systemctl restart nginx')
 
 
 def _create_folder_structure(folder):
@@ -125,6 +123,23 @@ def _update_virtualenv(folder):
 def _update_static_files(source_folder):
     run('cd %s && ../virtualenv/bin/python3 manage.py collectstatic \
             --noinput' % (source_folder,))
+
+def _setup_database():
+    # Test database if user exists, if not then create it
+    db_setup = sudo("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='%s'\"" \
+            % (db_user,), user='postgres') == '1'
+    if not db_setup:
+        sudo("psql -c \"CREATE USER %s WITH PASSWORD '%s'\"" % (db_user, db_pass),
+                user='postgres')
+
+    # Test if database is set up, if not create it and give user access
+    db_exists = sudo('psql -lqt | cut -d \| -f 1 | grep -w %s | wc -l' %
+            (db_name,), user='postgres') == '1'
+    if not db_exists:
+        sudo('psql -c "CREATE DATABASE %s"' % (db_name,), user='postgres')
+        sudo('psql -c "GRANT ALL PRIVILEGES ON DATABASE %s TO %s"' % (db_name,
+            db_user), user='postgres')
+
 
 def _update_database(source_folder):
     run('cd %s && ../virtualenv/bin/python3 manage.py migrate --noinput' % (

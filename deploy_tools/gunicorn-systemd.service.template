@@ -8,7 +8,7 @@ User=www-data
 Group=www-data
 WorkingDirectory=/var/www/sites/SITENAME/source
 ExecStart=/var/www/sites/SITENAME/virtualenv/bin/gunicorn \
-	--bind unix:/tmp/SITENAME.socket
+	--bind unix:/tmp/SITENAME.socket rotd.wsgi:application
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 
