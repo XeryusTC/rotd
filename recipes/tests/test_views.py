@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
 from django.template.loader import render_to_string
@@ -77,3 +77,18 @@ class EveryDayNewRecipeTest(TestCase):
     def test_home_page_uses_recipe_selector(self):
         response = self.client.get('/')
         self.assertEqual(todays_recipe(), response.context['recipe'])
+
+    def test_adding_new_recipe_doesnt_change_todays_recipe(self):
+        today = date.today()
+        before = todays_recipe(today)
+        factories.RecipeFactory(post=True)
+        after = todays_recipe(today)
+        self.assertEqual(before, after)
+
+    def test_changing_recipe_doesnt_change_todays_recipe(self):
+        today = date.today()
+        before = todays_recipe(today)
+        before.name = 'Changed name'
+        before.save()
+        after = todays_recipe(today)
+        self.assertEqual(before, after)

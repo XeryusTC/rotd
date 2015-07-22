@@ -1,3 +1,4 @@
+import datetime
 import factory
 
 class RecipeFactory(factory.DjangoModelFactory):
@@ -7,3 +8,8 @@ class RecipeFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'Recipe %d' % n)
     description = factory.Sequence(
         lambda n: 'Some description %d' %n)
+
+    @factory.post_generation
+    def post(obj, create, extracted, **kwargs):
+        if not extracted:
+            obj.add_date = datetime.date.today() - datetime.timedelta(days=1)
