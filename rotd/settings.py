@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'recipes',
     'gunicorn',
+    'functional_tests',
 )
 
 MIDDLEWARE_CLASSES = (

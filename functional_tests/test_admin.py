@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.test import LiveServerTestCase
+from django.core.management import call_command
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
@@ -8,22 +9,16 @@ import factory
 
 from .base import FunctionalTestCase
 
-class DjangoAdminUserFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = User
-
-    username = factory.Sequence(lambda n: 'admin%d' % n)
-    email = factory.LazyAttribute(lambda o: '%s@xeryus.nl' % o.username)
-    password = factory.PostGenerationMethodCall('set_password', 'admin')
-
-    is_superuser = True
-    is_staff = True
-    is_active = True
-
 class DjangoAdminTests(FunctionalTestCase):
     def test_can_create_recipe_via_admin_site(self):
         # Set up admin accounts
-        admin = DjangoAdminUserFactory()
+        username = 'testadmin'
+        password = 'testadmin'
+        if self.against_staging:
+            self.fail('Testing against staging is not implemented')
+        else:
+            call_command('create_admin', username, password, 'a@b.com')
+        #admin = DjangoAdminUserFactory()
         # Alice is an admin that wants to visit the admin page
         self.browser.get(self.server_url + '/admin/')
 
@@ -33,9 +28,9 @@ class DjangoAdminTests(FunctionalTestCase):
 
         # She types in her username and password and tries to log in
         username_field = self.browser.find_element_by_name('username')
-        username_field.send_keys(admin.username)
+        username_field.send_keys(username)
         password_field = self.browser.find_element_by_name('password')
-        password_field.send_keys('admin')
+        password_field.send_keys(password)
         password_field.send_keys(Keys.RETURN)
 
         # Her username and password are accepted and she is taken to

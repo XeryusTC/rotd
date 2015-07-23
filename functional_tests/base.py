@@ -1,6 +1,7 @@
 import sys
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+from .server_tools import reset_database
 
 class FunctionalTestCase(StaticLiveServerTestCase):
     @classmethod
@@ -21,7 +22,10 @@ class FunctionalTestCase(StaticLiveServerTestCase):
             super(FunctionalTestCase, cls).tearDownClass()
 
     def setUp(self):
+        if self.against_staging:
+            reset_database(self.server_host)
         self.browser = webdriver.Firefox()
+        self.browser.implicitly_wait(5)
 
     def tearDown(self):
         self.browser.close()
