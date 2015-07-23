@@ -8,6 +8,7 @@ from selenium.webdriver.common.keys import Keys
 import factory
 
 from .base import FunctionalTestCase
+from .server_tools import create_admin_on_server
 
 class DjangoAdminTests(FunctionalTestCase):
     def test_can_create_recipe_via_admin_site(self):
@@ -15,7 +16,8 @@ class DjangoAdminTests(FunctionalTestCase):
         username = 'testadmin'
         password = 'testadmin'
         if self.against_staging:
-            self.fail('Testing against staging is not implemented')
+            create_admin_on_server(self.server_host, username, password,
+                    'a@b.com')
         else:
             call_command('create_admin', username, password, 'a@b.com')
         #admin = DjangoAdminUserFactory()

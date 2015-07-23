@@ -2,12 +2,16 @@ from django.test import LiveServerTestCase
 from selenium import webdriver
 
 from .base import FunctionalTestCase
+from .server_tools import create_testrecipe_on_server
 import recipes.factories
 
 class HomePageRecipeTests(FunctionalTestCase):
     def test_can_see_todays_recipe(self):
         # Create a dummy recipe
-        recipes.factories.RecipeFactory()
+        if self.against_staging:
+            create_testrecipe_on_server(self.server_host)
+        else:
+            recipes.factories.RecipeFactory()
 
         # Alice goes to our website
         self.browser.get(self.server_url)
