@@ -1,3 +1,4 @@
+import datetime
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
@@ -9,4 +10,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         r = Recipe(name=''.join(random.choice(string.ascii_letters) for _
             in range(10)), description='description')
+        r.save()
+        r.add_date = datetime.date.today() - datetime.timedelta(days=2)
         r.save()
