@@ -11,7 +11,7 @@ class LayoutTest(FunctionalTestCase):
         recipes.factories.RecipeFactory()
 
         # Alice goes to the homepage
-        self.browser.get(self.live_server_url)
+        self.browser.get(self.server_url)
         self.browser.set_window_size(1024, 768)
 
         # When looking at the source she notices that bootstrap css is loaded

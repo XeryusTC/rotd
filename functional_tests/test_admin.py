@@ -25,7 +25,7 @@ class DjangoAdminTests(FunctionalTestCase):
         # Set up admin accounts
         admin = DjangoAdminUserFactory()
         # Alice is an admin that wants to visit the admin page
-        self.browser.get(self.live_server_url + '/admin/')
+        self.browser.get(self.server_url + '/admin/')
 
         # She sees the administration heading
         body = self.browser.find_element_by_tag_name('body')

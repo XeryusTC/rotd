@@ -10,7 +10,7 @@ class HomePageRecipeTests(FunctionalTestCase):
         recipes.factories.RecipeFactory()
 
         # Alice goes to our website
-        self.browser.get(self.live_server_url)
+        self.browser.get(self.server_url)
 
         # She notices that the title says 'Recept van de dag'
         self.assertIn('Recept van de dag', self.browser.title)
