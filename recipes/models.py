@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ROTD suggest a recipe to cook for dinner, changing the recipe every day.
 # Copyright © 2015 Xeryus Stokkel
 
