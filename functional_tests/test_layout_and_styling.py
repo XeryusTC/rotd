@@ -23,3 +23,11 @@ class LayoutTest(FunctionalTestCase):
         scripts = self.browser.find_elements_by_tag_name('script')
         self.assertTrue(any([ 'bootstrap' in script.get_attribute('src')
             for script in scripts ]))
+
+    def test_footer_is_present(self):
+        # Alice goes to the homepage
+        self.browser.get(self.server_url)
+
+        # At the bottom she sees a bit of text
+        footer = self.browser.find_element_by_tag_name('footer')
+        self.assertIn('Affero', footer.text)

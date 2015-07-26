@@ -14,12 +14,20 @@
 
 <div class="container">
 	<div class="row">
-		<div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 jumbotron">
+		<div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
 			<div class="text-center">
 				{% block content %}{% endblock %}
 			</div>
 		</div>
 	</div>
+</div>
+
+<div class="container">
+	<footer class="footer text-info bg-info">
+		Copyright Xeryus Stokkel © 2015. Deze website is gelicenseerd onder	de
+		GNU Affero General Public License (AGPL) licentie. De code is
+		<a href="https://github.com/XeryusTC/rotd.git">hier beschikbaar</a>.
+	</footer>
 </div>
 
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
