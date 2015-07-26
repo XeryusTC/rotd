@@ -1,13 +1,25 @@
-Recipe of the Day
-=================
+Recipe of the Day (ROTD)
+========================
 
 A website which shows a new recipe to try out every day.
 
 Licence
 -------
 
-This project currently has no licence, which means that it falls under
-copyright law.
+ROTD is currently licensed under the GNU Affero General Public License, version
+3. This means that ROTD is free software that you can redistribute and/or
+modify it under the terms of the AGPLv3 license.
+
+ROTD is distributed in the hope that it will be useful, but WITHOUT ANY
+WARANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See The GNU Affero General Public License for more details.
+
+A full copy of the licence can be found in the COPYING file. If not, see
+<http://www.gnu.org/licenses/>
+
+### Contributors
+Xeryus Stokkel (contact <at> xeryus <dot> nl)
+
 
 Provisioning
 ------------
