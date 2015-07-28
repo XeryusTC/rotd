@@ -134,7 +134,7 @@ def _update_virtualenv(folder):
     virtualenv_folder = folder + '/virtualenv'
     if not exists(virtualenv_folder + '/bin/python'):
         run('virtualenv --python=python3 %s' % (virtualenv_folder,))
-    run('%s/bin/pip install -r %s/requirements.txt' % (virtualenv_folder,
+    run('%s/bin/pip install -r %s/requirements/prod.txt' % (virtualenv_folder,
         folder + '/source'))
 
 def _update_static_files(source_folder):
@@ -146,8 +146,8 @@ def _setup_database():
     db_setup = sudo("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='%s'\"" \
             % (db_user,), user='postgres') == '1'
     if not db_setup:
-        sudo("psql -c \"CREATE USER %s WITH PASSWORD '%s'\"" % (db_user, db_pass),
-                user='postgres')
+        sudo("psql -c \"CREATE USER %s WITH PASSWORD '%s'\"" % (db_user,
+            db_pass), user='postgres')
 
     # Test if database is set up, if not create it and give user access
     db_exists = sudo('psql -lqt | cut -d \| -f 1 | grep -w %s | wc -l' %
