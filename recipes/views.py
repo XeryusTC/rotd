@@ -25,7 +25,7 @@ def todays_recipe(day=datetime.date.today()):
         target = (day.month * day.day + day.year) % \
             Recipe.objects.filter(add_date__lt=datetime.date.today()).count()
         return Recipe.objects.all()[target]
-    except:
+    except ZeroDivisionError:
         pass
 
 def home_page(request):
