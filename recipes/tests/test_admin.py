@@ -15,20 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.db import models
-from django.template.defaultfilters import slugify
+from django.test import TestCase
 
-class Recipe(models.Model):
-    name = models.CharField(max_length=64, blank=False, default='',
-            unique=True)
-    description = models.TextField(default='')
-    add_date = models.DateField(auto_now_add=True)
-    slug = models.SlugField(default='')
+from recipes.admin import RecipeAdmin
+from recipes.models import Recipe
+from rotd.admin import admin_site
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.slug = slugify(self.name)
-        super(Recipe, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.name
+class RecipeAdminTest(TestCase):
+    def test_recipe_admin_creates_slug_automatically(self):
+        """This is just a smoke test, the FT is more reliable"""
+        admin = RecipeAdmin(Recipe, admin_site)
+        admin.prepopulated_fields['slug']

@@ -46,3 +46,26 @@ class RecipeModelTests(TestCase):
     def test_string_representation(self):
         recipe = factories.RecipeFactory(name='test recipe')
         self.assertEquals(str(recipe), 'test recipe')
+
+    def test_recipe_slug_doesnt_change_when_updating_name(self):
+        r = factories.RecipeFactory()
+        slug = r.slug
+
+        r.name = 'new name'
+        r.save()
+
+        self.assertEqual(slug, r.slug)
+
+    def test_recipe_has_slug(self):
+        r = factories.RecipeFactory()
+        self.assertGreater(len(r.slug), 0)
+
+    def test_recipe_slugs_are_unique(self):
+        rs = factories.RecipeFactory.create_batch(size=2)
+        self.assertNotEqual(rs[0].slug, rs[1].slug)
+
+    def test_recipe_slugs_are_valid_slugs(self):
+        r = factories.RecipeFactory(name='Th!s is 4 WeIrD sl_g nam#()?')
+        # We do not care about "weird" slugs starting with a dash or other
+        # malformed slugs
+        self.assertRegex(r.slug, r'^[a-z0-9_-]+$')
