@@ -24,7 +24,7 @@ class FunctionalTestCase(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         for arg in sys.argv:
-            if 'liveserver' in arg:
+            if 'liveserver' in arg: # pragma: no cover
                 cls.server_host = arg.split('=')[1]
                 cls.server_url = 'http://' + cls.server_host
                 cls.against_staging = True

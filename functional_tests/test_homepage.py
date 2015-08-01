@@ -46,6 +46,3 @@ class HomePageRecipeTests(FunctionalTestCase):
         # There is also some description
         desc = self.browser.find_element_by_id('description')
         self.assertGreater(len(desc.text), 0)
-
-if __name__ == "__main__":
-    unittest.main()
