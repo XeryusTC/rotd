@@ -3,6 +3,7 @@ omit =
 	*site-packages*
 	*functional_tests/server_tools.py
 	*fabfile.py
+	*migrations/*
 
 [report]
 exclude_lines =
