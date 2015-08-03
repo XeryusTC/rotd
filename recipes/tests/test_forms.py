@@ -15,11 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.core import mail
 from django.test import TestCase
 
 from recipes.forms import ContactForm
 
 class ContactFormTests(TestCase):
+    def send_test_mail(self):
+        form = ContactForm({'name': 'Test Case', 'email': 'test@test.test',
+            'subject': 'Test subject', 'body': 'Test body'})
+        # Validate the data so we know it's safe and stored appropiatly,
+        # the assertion is there just to make sure
+        self.assertTrue(form.is_valid())
+
+        form.send_mail()
+
     def test_name_email_subject_body_fields_required(self):
         form = ContactForm({'name': ''})
         self.assertFalse(form.is_valid())
@@ -29,3 +39,14 @@ class ContactFormTests(TestCase):
         self.assertIn('email', form.errors)
         self.assertIn('subject', form.errors)
         self.assertIn('body', form.errors)
+
+    def test_form_sends_mail(self):
+        self.send_test_mail()
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_mail_contains_all_information(self):
+        self.send_test_mail()
+        self.assertIn('Test Case', mail.outbox[0].body)
+        self.assertEqual(mail.outbox[0].from_email, 'test@test.test')
+        self.assertIn('Test subject', mail.outbox[0].subject)
+        self.assertIn('Test body', mail.outbox[0].body)
