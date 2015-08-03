@@ -14,10 +14,12 @@
 
 <nav class="navbar navbar-default">
 	<div class="navbar-header">
-		<a class="navbar-brand" href="/">Recept van de dag</a>
+		<a class="navbar-brand" href="{% url 'recipes:home' %}">
+			Recept van de dag
+		</a>
 	</div>
 	<ul class="nav navbar-nav">
-		<li><a href="/contact/">Contact</a>
+		<li><a href="{% url 'recipes:contact' %}">Contact</a>
 	</ul>
 </nav>
 
