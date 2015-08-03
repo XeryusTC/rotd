@@ -41,6 +41,15 @@ class DjangoAdminTests(FunctionalTestCase):
             call_command('create_admin', self.username, self.password,
                     'a@b.com')
 
+    def admin_login(self, username, password,
+            url='/administratievehandelingen/'):
+        self.browser.get(self.server_url + url)
+        username_field = self.browser.find_element_by_name('username')
+        username_field.send_keys(username)
+        password_field = self.browser.find_element_by_name('password')
+        password_field.send_keys(password)
+        password_field.send_keys(Keys.RETURN)
+
     def test_can_create_recipe_via_admin_site(self):
         # Alice is an admin that wants to visit the admin page
         self.browser.get(self.server_url + '/administratievehandelingen/')
@@ -49,12 +58,7 @@ class DjangoAdminTests(FunctionalTestCase):
         body = self.browser.find_element_by_tag_name('body')
         self.assertIn('ROTD administration', body.text)
 
-        # She types in her username and password and tries to log in
-        username_field = self.browser.find_element_by_name('username')
-        username_field.send_keys(self.username)
-        password_field = self.browser.find_element_by_name('password')
-        password_field.send_keys(self.password)
-        password_field.send_keys(Keys.RETURN)
+        self.admin_login(self.username, self.password)
 
         # Her username and password are accepted and she is taken to
         # the Site administration page
@@ -90,22 +94,13 @@ class DjangoAdminTests(FunctionalTestCase):
         self.assertIn('Django administration', body.text)
 
         # She types in a username and password and tries to log in
-        username_field = self.browser.find_element_by_name('username')
-        username_field.send_keys('qwerty')
-        password_field = self.browser.find_element_by_name('password')
-        password_field.send_keys('abcdef')
-        password_field.send_keys(Keys.RETURN)
+        self.admin_login('qwerty', 'abcdef', '/admin/')
         # She sees an error message
         body = self.browser.find_element_by_tag_name('body')
         self.assertIn('Please enter the correct username and pass', body.text)
 
         # Alice is a valid admin who can login at the right URL
-        self.browser.get(self.server_url + '/administratievehandelingen/')
-        username_field = self.browser.find_element_by_name('username')
-        username_field.send_keys(self.username)
-        password_field = self.browser.find_element_by_name('password')
-        password_field.send_keys(self.password)
-        password_field.send_keys(Keys.RETURN)
+        self.admin_login(self.username, self.password)
 
         # She goes to the list of login attempts
         attempts = self.browser.find_element_by_link_text('Login attempts')
@@ -113,5 +108,5 @@ class DjangoAdminTests(FunctionalTestCase):
 
         # She selects the login attempts for today and sees the login attempt
         self.browser.find_element_by_link_text('Today').click()
-        body = self.browser.find_element_by_tag_name('body')
-        self.assertIn('qwerty', body.text)
+        results = self.browser.find_element_by_id('result_list')
+        self.assertIn('qwerty', results.text)
