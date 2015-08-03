@@ -1,8 +1,12 @@
 {% extends 'rotd/base.html' %}
+{% load bootstrap3 %}
 
 {% block content %}
 <h1>Contact</h1>
 
-<form>
+<form method="post" class="form-horizontal">
+	{% csrf_token %}
+	{% bootstrap_form form layout='horizontal' %}
+	{% buttons submit='Verstuur' %}{% endbuttons %}
 </form>
 {% endblock content %}

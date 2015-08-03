@@ -38,7 +38,7 @@ from recipes import views
 
 urlpatterns = [
     url(r'^$', views.home_page, name='home'),
-    url(r'^contact/', views.contact, name='contact'),
+    url(r'^contact/', views.ContactView.as_view(), name='contact'),
     url(r'^administratievehandelingen/', include(admin_site.urls)),
     url(r'^admin/', include(admin_honeypot.urls, namespace='admin_honeypot')),
 ]

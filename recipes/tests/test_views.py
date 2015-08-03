@@ -21,8 +21,9 @@ from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.test import TestCase
 
+from recipes.forms import ContactForm
 from recipes.models import Recipe
-from recipes.views import home_page, todays_recipe, contact
+from recipes.views import home_page, todays_recipe
 from recipes import factories
 
 class HomePageViewTest(TestCase):
@@ -121,4 +122,5 @@ class ContactPageTest(TestCase):
         self.assertTemplateUsed(response, 'rotd/base.html')
 
     def test_contact_page_holds_contact_form(self):
-        self.fail('Implement')
+        response = self.client.get('/contact/')
+        self.assertIsInstance(response.context['form'], ContactForm)

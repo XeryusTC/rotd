@@ -38,10 +38,11 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'recipes',
-    'gunicorn',
-    'functional_tests',
     'admin_honeypot',
+    'gunicorn',
+    'bootstrap3',
+    'recipes',
+    'functional_tests',
 )
 
 MIDDLEWARE_CLASSES = (

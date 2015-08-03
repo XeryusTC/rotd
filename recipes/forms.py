@@ -15,25 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
-import datetime
-from django.shortcuts import render
-from django.views.generic import FormView
+from django import forms
 
-from recipes.forms import ContactForm
-from recipes.models import Recipe
-
-def todays_recipe(day=datetime.date.today()):
-    try:
-        target = (day.month * day.day + day.year) % \
-            Recipe.objects.filter(add_date__lt=datetime.date.today()).count()
-        return Recipe.objects.all()[target]
-    except ZeroDivisionError:
-        pass
-
-def home_page(request):
-    recipe = todays_recipe()
-    return render(request, 'recipes/home.html', {'recipe': recipe})
-
-class ContactView(FormView):
-    template_name = 'recipes/contact.html'
-    form_class = ContactForm
+class ContactForm(forms.Form):
+    name = forms.CharField(label='Naam', required=True)
+    email = forms.EmailField(label='Email', required=True)
+    subject = forms.CharField(label='Onderwerp', required=True)
+    body = forms.CharField(label='Boodschap', required=True,
+            widget=forms.widgets.Textarea())
