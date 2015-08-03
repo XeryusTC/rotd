@@ -22,7 +22,7 @@ from django.template.loader import render_to_string
 from django.test import TestCase
 
 from recipes.models import Recipe
-from recipes.views import home_page, todays_recipe
+from recipes.views import home_page, todays_recipe, contact
 from recipes import factories
 
 class HomePageViewTest(TestCase):
@@ -109,3 +109,16 @@ class EveryDayNewRecipeTest(TestCase):
         before.save()
         after = todays_recipe(today)
         self.assertEqual(before, after)
+
+
+class ContactPageTest(TestCase):
+    def test_contact_page_returns_contact_template(self):
+        response = self.client.get('/contact/')
+        self.assertTemplateUsed(response, 'recipes/contact.html')
+
+    def test_contact_page_inherits_from_base_template(self):
+        response = self.client.get('/contact/')
+        self.assertTemplateUsed(response, 'rotd/base.html')
+
+    def test_contact_page_holds_contact_form(self):
+        self.fail('Implement')

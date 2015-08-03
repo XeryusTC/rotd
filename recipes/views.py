@@ -31,3 +31,6 @@ def todays_recipe(day=datetime.date.today()):
 def home_page(request):
     recipe = todays_recipe()
     return render(request, 'recipes/home.html', {'recipe': recipe})
+
+def contact(request):
+    return render(request, 'recipes/contact.html')
