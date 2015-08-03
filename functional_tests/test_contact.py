@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
+from selenium.webdriver.common.keys import Keys
 from unittest import skip
 from .base import FunctionalTestCase
 
@@ -42,7 +43,6 @@ class ContactPageTests(FunctionalTestCase):
         header = self.browser.find_element_by_tag_name('h1')
         self.assertEquals('Recept van de dag', header.text)
 
-    @skip
     def test_contact_form(self):
         # Alice is a visitor who goes to the contact page
         self.browser.get(self.server_url + '/contact/')
@@ -51,7 +51,7 @@ class ContactPageTests(FunctionalTestCase):
         name = self.browser.find_element_by_name('name')
         email = self.browser.find_element_by_name('email')
         subject = self.browser.find_element_by_name('subject')
-        body = self.browser.find_element_by_name("//input[@name='body']")
+        body = self.browser.find_element_by_css_selector("textarea[name='body']")
 
         name.send_keys('Test Client')
         email.send_keys('text@example.com')
