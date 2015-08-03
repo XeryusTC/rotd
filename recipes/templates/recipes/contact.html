@@ -7,6 +7,8 @@
 <form method="post" class="form-horizontal">
 	{% csrf_token %}
 	{% bootstrap_form form layout='horizontal' %}
-	{% buttons submit='Verstuur' %}{% endbuttons %}
+	<div class="text-right">
+		{% buttons submit='Verstuur' %}{% endbuttons %}
+	</div>
 </form>
 {% endblock content %}

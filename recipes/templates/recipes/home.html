@@ -3,11 +3,15 @@
 {% block page_title %}Recept van de dag{% endblock %}
 
 {% block content %}
-<h1>Recept van de dag</h1>
+<div class="text-center">
+	<h1>Recept van de dag</h1>
 
-<h2 id="recipe" class="bg-primary">{{ recipe.name }}</h2>
+	<h2 id="recipe" class="bg-primary">{{ recipe.name }}</h2>
+</div>
 
-<div id="description">{{ recipe.description|linebreaks }}</div>
+<div id="description" class="text-justify">
+	{{ recipe.description|linebreaks }}
+</div>
 {% endblock content %}
 
 </body>
