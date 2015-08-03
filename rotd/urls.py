@@ -31,11 +31,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include, url
+import admin_honeypot.urls
 
 from rotd.admin import admin_site
 from recipes import views
 
 urlpatterns = [
     url(r'^$', views.home_page, name='home'),
-    url(r'^admin/', include(admin_site.urls)),
+    url(r'^administratievehandelingen/', include(admin_site.urls)),
+    url(r'^admin/', include(admin_honeypot.urls, namespace='admin_honeypot')),
 ]

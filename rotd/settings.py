@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'recipes',
     'gunicorn',
     'functional_tests',
+    'admin_honeypot',
 )
 
 MIDDLEWARE_CLASSES = (

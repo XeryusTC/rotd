@@ -16,6 +16,8 @@
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.contrib.admin import AdminSite
+import admin_honeypot.models
+import admin_honeypot.admin
 from django.contrib.auth.admin import User, UserAdmin, Group, GroupAdmin
 
 class CustomAdminSite(AdminSite):
@@ -24,3 +26,5 @@ class CustomAdminSite(AdminSite):
 admin_site = CustomAdminSite(name='admin')
 admin_site.register(User, UserAdmin)
 admin_site.register(Group, GroupAdmin)
+admin_site.register(admin_honeypot.models.LoginAttempt,
+        admin_honeypot.admin.LoginAttemptAdmin)
