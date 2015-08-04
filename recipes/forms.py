@@ -16,6 +16,7 @@
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import forms
+from django.core.mail import send_mail
 
 class ContactForm(forms.Form):
     name = forms.CharField(label='Naam', required=True)
@@ -23,3 +24,11 @@ class ContactForm(forms.Form):
     subject = forms.CharField(label='Onderwerp', required=True)
     body = forms.CharField(label='Boodschap', required=True,
             widget=forms.widgets.Textarea())
+
+    def send_mail(self):
+        data = self.cleaned_data
+        body = 'Contact from {name}:\n\n{body}'.format(name=data['name'],
+            body=data['body'])
+        subject = '[Contact form] {}'.format(data['subject'])
+        send_mail(subject, body, data['email'],
+            ['contact@watzalikvanavondeten.nl'], fail_silently=True)
