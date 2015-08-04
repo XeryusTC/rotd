@@ -16,8 +16,9 @@
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
+from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView
 
 from recipes.forms import ContactForm
 from recipes.models import Recipe
@@ -37,3 +38,11 @@ def home_page(request):
 class ContactView(FormView):
     template_name = 'recipes/contact.html'
     form_class = ContactForm
+    success_url = reverse_lazy('recipes:contact_thanks')
+
+    def form_valid(self, form):
+        form.send_mail()
+        return super(ContactView, self).form_valid(form)
+
+class ContactThanksView(TemplateView):
+    template_name = 'recipes/contact_thanks.html'
