@@ -33,7 +33,7 @@ Including another URLconf
 from django.conf.urls import include, url
 import admin_honeypot.urls
 
-from rotd.admin import admin_site
+from common.admin import admin_site
 import recipes.urls
 
 urlpatterns = [

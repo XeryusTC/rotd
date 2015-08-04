@@ -19,7 +19,7 @@ from django.test import TestCase
 
 from recipes.admin import RecipeAdmin
 from recipes.models import Recipe
-from rotd.admin import admin_site
+from common.admin import admin_site
 
 class RecipeAdminTest(TestCase):
     def test_recipe_admin_creates_slug_automatically(self):

@@ -17,7 +17,7 @@
 
 from django.contrib import admin
 
-from rotd.admin import admin_site
+from common.admin import admin_site
 from recipes.models import Recipe
 
 class RecipeAdmin(admin.ModelAdmin):

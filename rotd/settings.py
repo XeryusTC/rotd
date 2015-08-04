@@ -11,10 +11,17 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from django.core.exceptions import ImproperlyConfigured
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+def get_env_setting(setting):
+    try:
+        return os.environ[setting]
+    except KeyError:
+        raise ImproperlyConfigured(
+            "Could not find setting '{}' in the environment".format(setting))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -54,7 +61,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'rotd.middleware.RemoteAddrMiddleware',
+    'common.middleware.RemoteAddrMiddleware',
 )
 
 ROOT_URLCONF = 'rotd.urls'
