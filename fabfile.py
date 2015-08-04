@@ -35,6 +35,7 @@ def provision():
     sudo('pip3 install virtualenv')
     _setup_variables(True)
     _setup_database()
+    _create_folder_structure(dest_folder)
 
     # Make sure all files are downloaded and Django is set up
     deploy()
@@ -43,7 +44,6 @@ def provision():
 
 def deploy():
     _setup_variables()
-    _create_folder_structure(dest_folder)
     _get_latest_source(source_folder)
     _update_virtualenv(dest_folder)
     _update_settings(source_folder, env.host)
