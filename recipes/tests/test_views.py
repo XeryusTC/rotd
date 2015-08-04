@@ -21,6 +21,7 @@ from django.core.urlresolvers import resolve
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.test import TestCase, RequestFactory
+import unittest
 from unittest.mock import Mock, patch
 
 from recipes.forms import ContactForm
@@ -38,14 +39,10 @@ class HomePageViewTest(TestCase):
         found = resolve('/')
         self.assertEqual(found.func, home_page)
 
-    def test_home_page_inherits_from_base_template(self):
+    def test_home_page_uses_correct_templates(self):
         factories.RecipeFactory()
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'rotd/base.html')
-
-    def test_home_page_uses_correct_template(self):
-        factories.RecipeFactory()
-        response = self.client.get('/')
         self.assertTemplateUsed(response, 'recipes/home.html')
 
     def test_home_page_degrades_gracefully_when_no_recipe(self):
@@ -71,7 +68,7 @@ class HomePageViewTest(TestCase):
         self.assertIn('line1<br />line2', response)
 
 
-class EveryDayNewRecipeTest(TestCase):
+class EveryDayNewRecipeTest(unittest.TestCase):
     """Tests that each day has a different recipe than the day before
     by induction"""
     @classmethod
@@ -91,12 +88,12 @@ class EveryDayNewRecipeTest(TestCase):
     def test_new_day_means_new_recipe(self):
         today = date.today()
         tomorrow = today + timedelta(days=1)
-        self.assertNotEqual(todays_recipe(today),
-                todays_recipe(tomorrow))
+        self.assertNotEqual(todays_recipe(today), todays_recipe(tomorrow))
 
-    def test_home_page_uses_recipe_selector(self):
-        response = self.client.get('/')
-        self.assertEqual(todays_recipe(), response.context['recipe'])
+    @patch('recipes.views.todays_recipe')
+    def test_home_page_uses_recipe_selector_new(self, mock_todays_recipe):
+        response = home_page(HttpRequest())
+        self.assertTrue(mock_todays_recipe.called)
 
     def test_adding_new_recipe_doesnt_change_todays_recipe(self):
         today = date.today()
@@ -118,9 +115,11 @@ class ContactPageTest(TestCase):
     def test_contact_page_returns_contact_template(self):
         response = self.client.get('/contact/')
         self.assertTemplateUsed(response, 'recipes/contact.html')
+        self.assertTemplateUsed(response, 'rotd/base.html')
 
-    def test_contact_page_inherits_from_base_template(self):
-        response = self.client.get('/contact/')
+    def test_contact_thanks_page_uses_correct_templates(self):
+        response = self.client.get('/contact/thanks/')
+        self.assertTemplateUsed(response, 'recipes/contact_thanks.html')
         self.assertTemplateUsed(response, 'rotd/base.html')
 
     def test_contact_page_holds_contact_form(self):
@@ -136,8 +135,3 @@ class ContactPageTest(TestCase):
         contact(request)
 
         self.assertEqual(len(mail.outbox), 1)
-
-    def test_contact_thanks_page_uses_correct_templates(self):
-        response = self.client.get('/contact/thanks/')
-        self.assertTemplateUsed(response, 'recipes/contact_thanks.html')
-        self.assertTemplateUsed(response, 'rotd/base.html')
