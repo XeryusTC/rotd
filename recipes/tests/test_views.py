@@ -16,14 +16,16 @@
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import date, datetime, timedelta
+from django.core import mail
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
 from django.template.loader import render_to_string
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
+from unittest.mock import Mock, patch
 
 from recipes.forms import ContactForm
 from recipes.models import Recipe
-from recipes.views import home_page, todays_recipe
+from recipes.views import home_page, todays_recipe, ContactView
 from recipes import factories
 
 class HomePageViewTest(TestCase):
@@ -124,3 +126,18 @@ class ContactPageTest(TestCase):
     def test_contact_page_holds_contact_form(self):
         response = self.client.get('/contact/')
         self.assertIsInstance(response.context['form'], ContactForm)
+
+    def test_form_sends_mail_on_POST(self):
+        request = RequestFactory().post('/contact/',
+                data={'name': 'Test Case', 'email': 'test@test.test',
+                    'subject': 'Test subject', 'body': 'Test body'})
+
+        contact = ContactView.as_view()
+        contact(request)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_contact_thanks_page_uses_correct_templates(self):
+        response = self.client.get('/contact/thanks/')
+        self.assertTemplateUsed(response, 'recipes/contact_thanks.html')
+        self.assertTemplateUsed(response, 'rotd/base.html')

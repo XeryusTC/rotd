@@ -52,7 +52,7 @@ class ContactPageTests(FunctionalTestCase):
         email = self.browser.find_element_by_name('email')
         subject = self.browser.find_element_by_name('subject')
         body = self.browser.find_element_by_css_selector("textarea[name='body']")
-        submit = self.browsers.find_element_by_tag_name('button')
+        submit = self.browser.find_element_by_tag_name('button')
 
         name.send_keys('Test Client')
         email.send_keys('text@example.com')
@@ -62,5 +62,7 @@ class ContactPageTests(FunctionalTestCase):
 
         # After submitting she should be redirected to a page that
         # thanks her for her feedback
-        location = self.browser.current_url()
-        self.assertTrue(location.endswith('/contact/thanks/')
+        location = self.browser.current_url
+        self.assertTrue(location.endswith('/contact/thanks/'))
+        body = self.browser.find_element_by_tag_name('body')
+        self.assertIn('Bedankt voor je bericht', body.text)
