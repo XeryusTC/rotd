@@ -68,7 +68,6 @@ def _setup_database_variables():
 
 def _build_and_deploy_system_files(source_folder):
     enable = confirm('Enable site?')
-    _setup_database_variables()
     # set up systemd to run the gunicorn service
     gunicorn_template = 'gunicorn-systemd.service.template'
     run('cp %s/deploy_tools/%s /tmp/' % (source_folder, gunicorn_template))
@@ -86,8 +85,8 @@ def _build_and_deploy_system_files(source_folder):
             gunicorn_template, env.host))
         envfile = '/etc/default/gunicorn-%s' % env.host
         sudo('mv /tmp/envvars %s' % envfile)
-        sudo('chown www-data:www-data %s' % envfile)
-        sudo('chmod 400 %s' % envfile)
+        sudo('chown %s:www-data %s' % (env.user, envfile))
+        sudo('chmod 440 %s' % envfile)
         sudo('systemctl enable gunicorn-%s.service' % (env.host,))
         sudo('systemctl daemon-reload')
         sudo('systemctl restart gunicorn-%s.service' % (env.host,))

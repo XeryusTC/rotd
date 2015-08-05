@@ -21,8 +21,10 @@ def _get_base_folder(host):
     return '/var/www/sites/' + host
 
 def _get_manage_py(host):
-    return '{path}/virtualenv/bin/python {path}/source/manage.py'.format(
-            path=_get_base_folder(host))
+    command = ('export $(cat /etc/default/gunicorn-{host}|xargs) && '
+        '{path}/virtualenv/bin/python {path}/source/manage.py '.format(
+            host=host, path=_get_base_folder(host)))
+    return command
 
 def reset_database():
     run('{manage} flush --noinput'.format(manage=_get_manage_py(env.host)))
