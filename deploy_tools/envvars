@@ -1,0 +1,6 @@
+ROTD_DB_NAME = "name"
+ROTD_DB_USER   = "user"
+ROTD_DB_PASSWORD = "password"
+ROTD_DOMAIN = "SITENAME"
+ROTD_SECRET_KEY = "secret"
+DJANGO_SETTINGS_MODULE = "rotd.settings.production"

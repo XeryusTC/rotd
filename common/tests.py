@@ -23,7 +23,7 @@ import string
 from unittest import TestCase
 
 from common.middleware import RemoteAddrMiddleware
-from rotd.settings import get_env_setting
+from rotd.settings.util import get_env_setting
 
 class MiddlewareTests(TestCase):
     def test_proxy_remote_addr_set(self):

@@ -11,6 +11,7 @@ ExecStart=/var/www/sites/SITENAME/virtualenv/bin/gunicorn \
 	--bind unix:/tmp/SITENAME.socket rotd.wsgi:application
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
+EnvironmentFile=-/etc/default/gunicorn-SITENAME
 
 [Install]
 WantedBy=multi-user.target

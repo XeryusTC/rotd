@@ -46,7 +46,6 @@ def deploy():
     _setup_variables()
     _get_latest_source(source_folder)
     _update_virtualenv(dest_folder)
-    _update_settings(source_folder, env.host)
     _update_static_files(source_folder)
     _update_database(source_folder)
 
@@ -69,13 +68,26 @@ def _setup_database_variables():
 
 def _build_and_deploy_system_files(source_folder):
     enable = confirm('Enable site?')
+    _setup_database_variables()
     # set up systemd to run the gunicorn service
     gunicorn_template = 'gunicorn-systemd.service.template'
     run('cp %s/deploy_tools/%s /tmp/' % (source_folder, gunicorn_template))
     sed('/tmp/%s' % (gunicorn_template,), 'SITENAME', env.host)
+    # create EnvironmentFile
+    run('cp %s/deploy_tools/envvars /tmp/' % source_folder)
+    sed('/tmp/envvars', 'SITENAME', env.host)
+    sed('/tmp/envvars', 'name', db_name)
+    sed('/tmp/envvars', 'user', db_user)
+    sed('/tmp/envvars', 'password', db_pass)
+    sed('/tmp/envvars', 'secret', _create_key())
+
     if enable:
         sudo('mv /tmp/%s /etc/systemd/system/gunicorn-%s.service' % (
             gunicorn_template, env.host))
+        envfile = '/etc/default/gunicorn-%s' % env.host
+        sudo('mv /tmp/envvars %s' % envfile)
+        sudo('chown www-data:www-data %s' % envfile)
+        sudo('chmod 400 %s' % envfile)
         sudo('systemctl enable gunicorn-%s.service' % (env.host,))
         sudo('systemctl daemon-reload')
         sudo('systemctl restart gunicorn-%s.service' % (env.host,))
@@ -88,6 +100,10 @@ def _build_and_deploy_system_files(source_folder):
             env.host,))
         sudo('systemctl restart nginx')
 
+def _create_key(length=50):
+    chars = 'qwertyuiopasdfghjklzxcvbnmQWERTYIOPASDFGHJKLZXCVBNM' + \
+            '1234567890!@#$%^&*()_+-='
+    return ''.join(random.SystemRandom().choice(chars) for _ in range(length))
 
 def _create_folder_structure(folder):
     for subfolder in ('static', 'virtualenv', 'source'):
@@ -101,34 +117,6 @@ def _get_latest_source(source_folder):
         run('git clone %s %s' % (REPO_URL, source_folder))
     current_commit = local('git log -n 1 --format=%H', capture=True)
     run('cd %s && git reset --hard %s' % (source_folder, current_commit))
-
-def _update_settings(source_folder, site_name):
-    settings_path = source_folder + '/rotd/settings.py'
-    sed(settings_path, 'DEBUG = True', 'DEBUG = False')
-    sed(settings_path, 'DOMAIN = "localhost"', 'DOMAIN = "%s"' % site_name)
-
-    # Set up secret key
-    secret_key_file = source_folder + '/rotd/secret_key.py'
-    if not exists(secret_key_file):
-        chars = 'qwertyuiopasdfghjklzxcvbnmQWERTYIOPASDFGHJKLZXCVBNM' + \
-                '1234567890!@#$%^&*()_+-='
-        key = ''.join(random.SystemRandom().choice(chars) for _ in range(50))
-        append(secret_key_file, 'SECRET_KEY = "%s"' % (key,))
-    append(settings_path, '\nfrom .secret_key import SECRET_KEY')
-
-    # Set up database
-    database_file = source_folder + '/rotd/database.py'
-    if not exists(database_file):
-        if db_name is None:
-            _setup_database_variables()
-
-        run('cd %s && cp deploy_tools/database.py %s' % (source_folder,
-            database_file))
-        sed(database_file, '"NAME": ""', '"NAME": "%s"' % (db_name,))
-        sed(database_file, '"USER": ""', '"USER": "%s"' % (db_user,))
-        sed(database_file, '"PASSWORD": ""',
-            '"PASSWORD": "%s"' % (db_pass,))
-    append(settings_path, '\nfrom .database import DATABASES')
 
 def _update_virtualenv(folder):
     virtualenv_folder = folder + '/virtualenv'
