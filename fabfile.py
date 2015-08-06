@@ -16,77 +16,124 @@
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
 from fabric.api import env, local, prompt, settings, sudo, run
+from fabric.context_managers import hide
 from fabric.contrib.console import confirm
 from fabric.contrib.files import append, exists, sed
 from getpass import getpass
 import random
+import sys
 
 REPO_URL = 'https://github.com/XeryusTC/rotd.git'
-
-dest_folder = None
-source_folder = None
-db_name = None
-db_user = None
-db_pass = None
 
 def provision():
     sudo('apt-get install nginx git python3 python3-pip \
             postgresql-server-dev-9.4')
     sudo('pip3 install virtualenv')
-    _setup_variables(True)
-    _setup_database()
-    _create_folder_structure(dest_folder)
+    _setup_variables()
+    _settings_prompt()
+    env.enable = confirm('Enable site (this activates generated config)?')
+    _create_folder_structure(env.dest_folder)
 
     # Make sure all files are downloaded and Django is set up
     deploy()
 
-    _build_and_deploy_system_files(source_folder)
+    _deploy_settings_file(env.source_folder)
+    _build_and_deploy_system_files(env.source_folder)
 
 def deploy():
     _setup_variables()
-    _get_latest_source(source_folder)
-    _update_virtualenv(dest_folder)
-    _update_static_files(source_folder)
-    _update_database(source_folder)
+    _get_latest_source(env.source_folder)
+    _update_virtualenv(env.dest_folder)
+    _update_static_files(env.source_folder)
+    _update_database(env.source_folder)
 
+def update_settings():
+    _setup_variables()
+    env.enable = True
+    _settings_prompt()
+    _deploy_settings_file(env.source_folder)
 
-def _setup_variables(database=False):
-    global dest_folder, source_folder
-    if dest_folder != None:
+def _setup_variables():
+    # skip setup if settings are already setup
+    try:
+        env.dest_folder
         return
+    except AttributeError:
+        pass
+
     run('uptime') # make sure that we have a host set
-    dest_folder = '/var/www/sites/%s' % (env.host,)
-    source_folder = dest_folder + '/source'
-    if database:
-        _setup_database_variables()
+    env.dest_folder = '/var/www/sites/%s' % (env.host,)
+    env.source_folder = env.dest_folder + '/source'
 
 def _setup_database_variables():
-    global db_name, db_user, db_pass
-    db_name = prompt('Database name: ', default='rotd')
-    db_user = prompt('Database user: ', default='rotd')
-    db_pass = getpass('Database password: ')
+    env.db_name = prompt('Database name: ', default='rotd')
+    env.db_user = prompt('Database user: ', default='rotd')
+    env.db_pass = getpass('Database password: ')
+    db_pass2 = getpass('Confirm database password: ')
+    if env.db_pass != db_pass2:
+        print("Database passwords are not the same.")
+        sys.exit(1)
+
+def _settings_prompt():
+    _setup_database_variables()
+    env.email_host = prompt('Email host: ',     default='localhost')
+    env.email_port = prompt('Email port: ', default='587')
+    env.email_user = prompt('Autosender email address: ',
+            default='noreply@%s' % env.email_host)
+    env.email_pass = getpass('Email password: ')
+    email_pass2    = getpass('Confirm email password: ')
+    if env.email_pass != email_pass2:
+        print("Email passwords are not the same.")
+        sys.exit(1)
+
+def _deploy_settings_file(source_folder):
+    """Creates the EnvironmentFile as required by systemd"""
+    try:
+        enable = env.enable
+    except AttributeError:
+        enable = False
+
+    # make sure that the settings are set
+    try:
+        env.email_host
+    except AttributeError:
+        _settings_prompt()
+
+    envfile = '/etc/default/gunicorn-%s' % env.host
+    run('cp %s/deploy_tools/envvars /tmp/' % source_folder)
+    sed('/tmp/envvars', 'SITENAME',       env.host)
+    sed('/tmp/envvars', 'db_name',        env.db_name)
+    sed('/tmp/envvars', 'db_user',        env.db_user)
+    sed('/tmp/envvars', 'secret',         _create_key())
+    sed('/tmp/envvars', 'email_host',     env.email_host)
+    sed('/tmp/envvars', 'email_user',     env.email_user)
+    sed('/tmp/envvars', 'email_port',     env.email_port)
+    with hide('running', 'stdout'):
+        sed('/tmp/envvars', 'db_password',    env.db_pass)
+        sed('/tmp/envvars', 'email_password', env.email_pass)
+
+    if enable:
+        sudo('mv /tmp/envvars %s' % envfile)
+        sudo('chown %s:www-data %s' % (env.user, envfile))
+        sudo('chmod 440 %s' % envfile)
+        with settings(warn_only=True):
+            sudo('systemctl restart gunicorn-%s.service' % (env.host,))
 
 def _build_and_deploy_system_files(source_folder):
-    enable = confirm('Enable site?')
+    try:
+        enable = env.enable
+    except AttributeError:
+        enable = False
     # set up systemd to run the gunicorn service
     gunicorn_template = 'gunicorn-systemd.service.template'
     run('cp %s/deploy_tools/%s /tmp/' % (source_folder, gunicorn_template))
     sed('/tmp/%s' % (gunicorn_template,), 'SITENAME', env.host)
-    # create EnvironmentFile
-    run('cp %s/deploy_tools/envvars /tmp/' % source_folder)
-    sed('/tmp/envvars', 'SITENAME', env.host)
-    sed('/tmp/envvars', 'name', db_name)
-    sed('/tmp/envvars', 'user', db_user)
-    sed('/tmp/envvars', 'password', db_pass)
-    sed('/tmp/envvars', 'secret', _create_key())
+
+    _deploy_settings_file(source_folder)
 
     if enable:
         sudo('mv /tmp/%s /etc/systemd/system/gunicorn-%s.service' % (
             gunicorn_template, env.host))
-        envfile = '/etc/default/gunicorn-%s' % env.host
-        sudo('mv /tmp/envvars %s' % envfile)
-        sudo('chown %s:www-data %s' % (env.user, envfile))
-        sudo('chmod 440 %s' % envfile)
         sudo('systemctl enable gunicorn-%s.service' % (env.host,))
         sudo('systemctl daemon-reload')
         sudo('systemctl restart gunicorn-%s.service' % (env.host,))
@@ -130,19 +177,19 @@ def _update_static_files(source_folder):
 
 def _setup_database():
     # Test database if user exists, if not then create it
-    db_setup = sudo("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='%s'\"" \
-            % (db_user,), user='postgres') == '1'
+    db_setup = sudo("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='%s'\""\
+            % (env.db_user,), user='postgres') == '1'
     if not db_setup:
-        sudo("psql -c \"CREATE USER %s WITH PASSWORD '%s'\"" % (db_user,
-            db_pass), user='postgres')
+        sudo("psql -c \"CREATE USER %s WITH PASSWORD '%s'\"" % (env.db_user,
+            env.db_pass), user='postgres')
 
     # Test if database is set up, if not create it and give user access
     db_exists = sudo('psql -lqt | cut -d \| -f 1 | grep -w %s | wc -l' %
-            (db_name,), user='postgres') == '1'
+            (env.db_name,), user='postgres') == '1'
     if not db_exists:
-        sudo('psql -c "CREATE DATABASE %s"' % (db_name,), user='postgres')
-        sudo('psql -c "GRANT ALL PRIVILEGES ON DATABASE %s TO %s"' % (db_name,
-            db_user), user='postgres')
+        sudo('psql -c "CREATE DATABASE %s"' % (env.db_name,), user='postgres')
+        sudo('psql -c "GRANT ALL PRIVILEGES ON DATABASE %s TO %s"' % (
+            env.db_name, env.db_user), user='postgres')
 
 
 def _update_database(source_folder):
