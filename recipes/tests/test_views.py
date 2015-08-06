@@ -42,7 +42,7 @@ class HomePageViewTest(TestCase):
     def test_home_page_uses_correct_templates(self):
         factories.RecipeFactory()
         response = self.client.get('/')
-        self.assertTemplateUsed(response, 'rotd/base.html')
+        self.assertTemplateUsed(response, 'base.html')
         self.assertTemplateUsed(response, 'recipes/home.html')
 
     def test_home_page_degrades_gracefully_when_no_recipe(self):
@@ -115,12 +115,12 @@ class ContactPageTest(TestCase):
     def test_contact_page_returns_contact_template(self):
         response = self.client.get('/contact/')
         self.assertTemplateUsed(response, 'recipes/contact.html')
-        self.assertTemplateUsed(response, 'rotd/base.html')
+        self.assertTemplateUsed(response, 'base.html')
 
     def test_contact_thanks_page_uses_correct_templates(self):
         response = self.client.get('/contact/thanks/')
         self.assertTemplateUsed(response, 'recipes/contact_thanks.html')
-        self.assertTemplateUsed(response, 'rotd/base.html')
+        self.assertTemplateUsed(response, 'base.html')
 
     def test_contact_page_holds_contact_form(self):
         response = self.client.get('/contact/')
