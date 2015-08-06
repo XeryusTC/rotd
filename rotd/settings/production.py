@@ -21,7 +21,7 @@ DATABASES = {
 
 SECRET_KEY = get_env_setting('ROTD_SECRET_KEY')
 
-EMAIL_BACKEND = 'django.core.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = get_env_setting('ROTD_EMAIL_HOST')
 EMAIL_HOST_PASSWORD = get_env_setting('ROTD_EMAIL_HOST_PASSWORD')
 EMAIL_HOST_USER = get_env_setting('ROTD_EMAIL_HOST_USER')

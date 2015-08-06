@@ -16,9 +16,14 @@
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import time
+
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from .server_tools import reset_database
+
+DEFAULT_WAIT = 5
 
 class FunctionalTestCase(StaticLiveServerTestCase):
     @classmethod
@@ -42,7 +47,17 @@ class FunctionalTestCase(StaticLiveServerTestCase):
         if self.against_staging:
             reset_database(self.server_host)
         self.browser = webdriver.Firefox()
-        self.browser.implicitly_wait(5)
+        self.browser.implicitly_wait(DEFAULT_WAIT)
 
     def tearDown(self):
         self.browser.close()
+
+    def wait_for(self, func, timeout=DEFAULT_WAIT):
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            try:
+                return func()
+            except (AssertionError, WebDriverException):
+                time.sleep(0.1)
+        # One more try, which will raise any errors if they are outstanding
+        return func()
