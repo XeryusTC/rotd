@@ -31,6 +31,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include, url
+import django.views.defaults as default_views
 import admin_honeypot.urls
 
 from common.admin import admin_site
@@ -40,4 +41,6 @@ urlpatterns = [
     url(r'', include(recipes.urls, namespace='recipes')),
     url(r'^administratievehandelingen/', include(admin_site.urls)),
     url(r'^admin/', include(admin_honeypot.urls, namespace='admin_honeypot')),
+    url(r'^500/$', default_views.server_error),
+    url(r'^403/$', default_views.permission_denied),
 ]
