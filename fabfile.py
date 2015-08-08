@@ -16,7 +16,7 @@
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
 from fabric.api import env, local, prompt, settings, sudo, run
-from fabric.context_managers import hide
+from fabric.context_managers import hide, prefix
 from fabric.contrib.console import confirm
 from fabric.contrib.files import append, exists, sed
 from getpass import getpass
@@ -33,12 +33,18 @@ def provision():
     _settings_prompt()
     env.enable = confirm('Enable site (this activates generated config)?')
     _create_folder_structure(env.dest_folder)
+    _setup_database()
 
     # Make sure all files are downloaded and Django is set up
-    deploy()
+    _get_latest_source(env.source_folder)
+    _update_virtualenv(env.dest_folder)
 
     _deploy_settings_file(env.source_folder)
     _build_and_deploy_system_files(env.source_folder)
+
+    # Finish the final steps that rely on the environment being set up
+    _update_database(env.source_folder)
+    _update_static_files(env.source_folder)
 
 def deploy():
     _setup_variables()
@@ -76,7 +82,7 @@ def _setup_database_variables():
 
 def _settings_prompt():
     _setup_database_variables()
-    env.email_host = prompt('Email host: ',     default='localhost')
+    env.email_host = prompt('Email host: ', default='localhost')
     env.email_port = prompt('Email port: ', default='587')
     env.email_user = prompt('Autosender email address: ',
             default='noreply@%s' % env.email_host)
@@ -85,6 +91,7 @@ def _settings_prompt():
     if env.email_pass != email_pass2:
         print("Email passwords are not the same.")
         sys.exit(1)
+    env.setup_ssl  = confirm('Enable SSL?', default=False)
 
 def _deploy_settings_file(source_folder):
     """Creates the EnvironmentFile as required by systemd"""
@@ -139,7 +146,10 @@ def _build_and_deploy_system_files(source_folder):
         sudo('systemctl restart gunicorn-%s.service' % (env.host,))
 
     # Set up nginx
-    run('cp %s/deploy_tools/nginx.conf.template /tmp/' % (source_folder,))
+    if env.setup_ssl:
+        run('cp %s/deploy_tools/nginx-ssl.conf.template /tmp/' % (source_folder,))
+    else:
+        run('cp %s/deploy_tools/nginx.conf.template /tmp/' % (source_folder,))
     sed('/tmp/nginx.conf.template', 'SITENAME', env.host)
     if enable:
         sudo('mv /tmp/nginx.conf.template /etc/nginx/sites-available/%s' % (
@@ -172,8 +182,10 @@ def _update_virtualenv(folder):
         folder + '/source'))
 
 def _update_static_files(source_folder):
-    run('cd %s && ../virtualenv/bin/python3 manage.py collectstatic \
-            --noinput' % (source_folder,))
+    with prefix('export $(cat /etc/default/gunicorn-{host}|xargs)'.format(
+        host=env.host)):
+        run('cd %s && ../virtualenv/bin/python3 manage.py collectstatic \
+                --noinput' % (source_folder,))
 
 def _setup_database():
     # Test database if user exists, if not then create it
@@ -193,5 +205,7 @@ def _setup_database():
 
 
 def _update_database(source_folder):
-    run('cd %s && ../virtualenv/bin/python3 manage.py migrate --noinput' % (
-        source_folder,))
+    with prefix('export $(cat /etc/default/gunicorn-{host}|xargs)'.format(
+        host=env.host)):
+        run('cd %s && ../virtualenv/bin/python3 manage.py migrate --noinput' % (
+            source_folder,))

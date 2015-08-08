@@ -6,6 +6,7 @@ DEBUG = False
 DOMAIN = get_env_setting('ROTD_DOMAIN')
 ALLOWED_HOSTS = [
         DOMAIN,
+        'www.' + DOMAIN,
     ]
 
 DATABASES = {
