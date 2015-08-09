@@ -147,13 +147,16 @@ def _build_and_deploy_system_files(source_folder):
 
     # Set up nginx
     if env.setup_ssl:
-        run('cp %s/deploy_tools/nginx-ssl.conf.template /tmp/' % (source_folder,))
+        run('cp %s/deploy_tools/nginx-ssl.conf.template \
+                /tmp/nginx.conf.template' % (source_folder,))
     else:
         run('cp %s/deploy_tools/nginx.conf.template /tmp/' % (source_folder,))
     sed('/tmp/nginx.conf.template', 'SITENAME', env.host)
     if enable:
         sudo('mv /tmp/nginx.conf.template /etc/nginx/sites-available/%s' % (
             env.host,))
+        sudo('ln -s /etc/nginx/sites-available/%s /etc/nginx/sites-enabled/%s'
+            % (env.host, env.host))
         sudo('systemctl restart nginx')
 
 def _create_key(length=50):
