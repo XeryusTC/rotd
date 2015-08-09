@@ -25,10 +25,14 @@ import sys
 
 REPO_URL = 'https://github.com/XeryusTC/rotd.git'
 
-def provision():
+def requirements():
+    """Install all the software requirements that pip can't manage."""
     sudo('apt-get install nginx git python3 python3-pip \
             postgresql-server-dev-9.4')
     sudo('pip3 install virtualenv')
+
+def provision():
+    """Create the config files to run the site on the server."""
     _setup_variables()
     _settings_prompt()
     env.enable = confirm('Enable site (this activates generated config)?')
@@ -47,6 +51,7 @@ def provision():
     _update_static_files(env.source_folder)
 
 def deploy():
+    """Update the source and associated files."""
     _setup_variables()
     _get_latest_source(env.source_folder)
     _update_virtualenv(env.dest_folder)
@@ -54,6 +59,7 @@ def deploy():
     _update_database(env.source_folder)
 
 def update_settings():
+    """Change the environment variables that contain the settings."""
     _setup_variables()
     env.enable = True
     _settings_prompt()
