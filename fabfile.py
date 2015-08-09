@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
-from fabric.api import env, local, prompt, settings, sudo, run
+from fabric.api import env, local, prompt, put, settings, sudo, run
 from fabric.context_managers import hide, prefix
 from fabric.contrib.console import confirm
 from fabric.contrib.files import append, exists, sed
@@ -43,7 +43,7 @@ def provision():
     _get_latest_source(env.source_folder)
     _update_virtualenv(env.dest_folder)
 
-    _deploy_settings_file(env.source_folder)
+    _deploy_settings_file()
     _build_and_deploy_system_files(env.source_folder)
 
     # Finish the final steps that rely on the environment being set up
@@ -63,7 +63,7 @@ def update_settings():
     _setup_variables()
     env.enable = True
     _settings_prompt()
-    _deploy_settings_file(env.source_folder)
+    _deploy_settings_file()
 
 def _setup_variables():
     # skip setup if settings are already setup
@@ -99,38 +99,39 @@ def _settings_prompt():
         sys.exit(1)
     env.setup_ssl  = confirm('Enable SSL?', default=False)
 
-def _deploy_settings_file(source_folder):
-    """Creates the EnvironmentFile as required by systemd"""
+def _deploy_settings_file():
+    """Create the EnvironmentFile as required by systemd."""
+    # Make sure that settings are set, assume we don't want to upload
+    # unless explicitly specified otherwise
     try:
         enable = env.enable
     except AttributeError:
         enable = False
-
-    # make sure that the settings are set
     try:
         env.email_host
     except AttributeError:
         _settings_prompt()
 
-    envfile = '/etc/default/gunicorn-%s' % env.host
-    run('cp %s/deploy_tools/envvars /tmp/' % source_folder)
-    sed('/tmp/envvars', 'SITENAME',       env.host)
-    sed('/tmp/envvars', 'db_name',        env.db_name)
-    sed('/tmp/envvars', 'db_user',        env.db_user)
-    sed('/tmp/envvars', 'secret',         _create_key())
-    sed('/tmp/envvars', 'email_host',     env.email_host)
-    sed('/tmp/envvars', 'email_user',     env.email_user)
-    sed('/tmp/envvars', 'email_port',     env.email_port)
+    # Update the file locally
+    local('cp deploy_tools/envvars envvars')
+    local("sed -i'' s/SITENAME/{}/g   envvars".format(env.host))
+    local("sed -i'' s/db_name/{}/g    envvars".format(env.db_name))
+    local("sed -i'' s/db_user/{}/g    envvars".format(env.db_user))
+    local("sed -i'' s/secret/{}/g     envvars".format(_create_key()))
+    local("sed -i'' s/email_host/{}/g envvars".format(env.email_host))
+    local("sed -i'' s/email_user/{}/g envvars".format(env.email_user))
+    local("sed -i'' s/email_port/{}/g envvars".format(env.email_port))
     with hide('running', 'stdout'):
-        sed('/tmp/envvars', 'db_password',    env.db_pass)
-        sed('/tmp/envvars', 'email_password', env.email_pass)
+        local("sed -i'' s/db_password/{}/g    envvars".format(env.db_pass))
+        local("sed -i'' s/email_password/{}/g envvars".format(env.email_pass))
 
     if enable:
-        sudo('mv /tmp/envvars %s' % envfile)
-        sudo('chown %s:www-data %s' % (env.user, envfile))
-        sudo('chmod 440 %s' % envfile)
+        put('envvars', '/etc/default/gunicorn-{}'.format(env.host),
+                use_sudo=True, mode=0640)
+        sudo('chown {user}:www-data /etc/default/gunicorn-{host}'.format(
+                user=env.user, host=env.host))
         with settings(warn_only=True):
-            sudo('systemctl restart gunicorn-%s.service' % (env.host,))
+            sudo('systemctl restart gunicorn-{}.service'.format(env.host))
 
 def _build_and_deploy_system_files(source_folder):
     try:
@@ -142,7 +143,7 @@ def _build_and_deploy_system_files(source_folder):
     run('cp %s/deploy_tools/%s /tmp/' % (source_folder, gunicorn_template))
     sed('/tmp/%s' % (gunicorn_template,), 'SITENAME', env.host)
 
-    _deploy_settings_file(source_folder)
+    _deploy_settings_file()
 
     if enable:
         sudo('mv /tmp/%s /etc/systemd/system/gunicorn-%s.service' % (
