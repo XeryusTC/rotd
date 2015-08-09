@@ -112,16 +112,17 @@ def _deploy_settings_file():
 
     # Update the file locally
     local('cp deploy_tools/envvars envvars')
-    local("sed -i'' s/SITENAME/{}/g   envvars".format(env.host))
-    local("sed -i'' s/db_name/{}/g    envvars".format(env.db_name))
-    local("sed -i'' s/db_user/{}/g    envvars".format(env.db_user))
-    local("sed -i'' s/secret/{}/g     envvars".format(_create_key()))
-    local("sed -i'' s/email_host/{}/g envvars".format(env.email_host))
-    local("sed -i'' s/email_user/{}/g envvars".format(env.email_user))
-    local("sed -i'' s/email_port/{}/g envvars".format(env.email_port))
+    local("sed -i'' s/SITENAME/'{}'/g   envvars".format(env.host))
+    local("sed -i'' s/db_name/'{}'/g    envvars".format(env.db_name))
+    local("sed -i'' s/db_user/'{}'/g    envvars".format(env.db_user))
+    local("sed -i'' s/secret/'{}'/g     envvars".format(_create_key()))
+    local("sed -i'' s/email_host/'{}'/g envvars".format(env.email_host))
+    local("sed -i'' s/email_user/'{}'/g envvars".format(env.email_user))
+    local("sed -i'' s/email_port/'{}'/g envvars".format(env.email_port))
     with hide('running', 'stdout'):
-        local("sed -i'' s/db_password/{}/g    envvars".format(env.db_pass))
-        local("sed -i'' s/email_password/{}/g envvars".format(env.email_pass))
+        local("sed -i'' s/db_password/'{}'/g    envvars".format(env.db_pass))
+        local("sed -i'' s/email_password/'{}'/g envvars".format(
+            env.email_pass))
 
     if enable:
         put('envvars', '/etc/default/gunicorn-{}'.format(env.host),
