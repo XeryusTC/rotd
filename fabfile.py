@@ -77,21 +77,19 @@ def _setup_variables():
     env.dest_folder = '/var/www/sites/%s' % (env.host,)
     env.source_folder = env.dest_folder + '/source'
 
-def _setup_database_variables():
+def _settings_prompt():
     env.db_name = prompt('Database name: ', default='rotd')
     env.db_user = prompt('Database user: ', default='rotd')
     env.db_pass = getpass('Database password: ')
-    db_pass2 = getpass('Confirm database password: ')
+    db_pass2    = getpass('Confirm database password: ')
     if env.db_pass != db_pass2:
         print("Database passwords are not the same.")
         sys.exit(1)
 
-def _settings_prompt():
-    _setup_database_variables()
     env.email_host = prompt('Email host: ', default='localhost')
     env.email_port = prompt('Email port: ', default='587')
-    env.email_user = prompt('Autosender email address: ',
-            default='noreply@%s' % env.email_host)
+    env.email_user = prompt('Robot email address: ',
+            default='noreply@{}'.format(env.host))
     env.email_pass = getpass('Email password: ')
     email_pass2    = getpass('Confirm email password: ')
     if env.email_pass != email_pass2:
