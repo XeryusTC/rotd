@@ -44,7 +44,7 @@ def provision():
     _update_virtualenv(env.dest_folder)
 
     _deploy_settings_file()
-    _build_and_deploy_system_files(env.source_folder)
+    _build_and_deploy_system_files()
 
     # Finish the final steps that rely on the environment being set up
     _update_database(env.source_folder)
@@ -132,37 +132,35 @@ def _deploy_settings_file():
         with settings(warn_only=True):
             sudo('systemctl restart gunicorn-{}.service'.format(env.host))
 
-def _build_and_deploy_system_files(source_folder):
+def _build_and_deploy_system_files():
     try:
         enable = env.enable
     except AttributeError:
         enable = False
-    # set up systemd to run the gunicorn service
-    gunicorn_template = 'gunicorn-systemd.service.template'
-    run('cp %s/deploy_tools/%s /tmp/' % (source_folder, gunicorn_template))
-    sed('/tmp/%s' % (gunicorn_template,), 'SITENAME', env.host)
 
+    # set up systemd to run gunicorn, build the EnvFile first
     _deploy_settings_file()
+    local('cp deploy_tools/gunicorn-systemd.service.template gunicorn')
+    local("sed -i'' s/SITENAME/{}/g gunicorn".format(env.host))
 
     if enable:
-        sudo('mv /tmp/%s /etc/systemd/system/gunicorn-%s.service' % (
-            gunicorn_template, env.host))
-        sudo('systemctl enable gunicorn-%s.service' % (env.host,))
+        put('gunicorn', '/etc/systemd/system/gunicorn-{}.service'.format(
+                env.host), use_sudo=True)
+        sudo('systemctl enable gunicorn-{}.service'.format(env.host))
         sudo('systemctl daemon-reload')
-        sudo('systemctl restart gunicorn-%s.service' % (env.host,))
+        sudo('systemctl restart gunicorn-{}.service'.format(env.host))
 
-    # Set up nginx
+    # set up a nginx proxy
     if env.setup_ssl:
-        run('cp %s/deploy_tools/nginx-ssl.conf.template \
-                /tmp/nginx.conf.template' % (source_folder,))
+        local('cp deploy_tools/nginx-ssl.conf.template nginx')
     else:
-        run('cp %s/deploy_tools/nginx.conf.template /tmp/' % (source_folder,))
-    sed('/tmp/nginx.conf.template', 'SITENAME', env.host)
+        local('cp deploy_tools/nginx.conf.template nginx')
+    local("sed -i'' s/SITENAME/'{}'/g nginx".format(env.host))
     if enable:
-        sudo('mv /tmp/nginx.conf.template /etc/nginx/sites-available/%s' % (
-            env.host,))
-        sudo('ln -s /etc/nginx/sites-available/%s /etc/nginx/sites-enabled/%s'
-            % (env.host, env.host))
+        put('nginx', '/etc/nginx/sites-available/{}'.format(env.host),
+                use_sudo=True)
+        sudo('ln -s /etc/nginx/sites-available/{host} \
+                /etc/nginx/sites-enables/{host}'.format(host=env.host))
         sudo('systemctl restart nginx')
 
 def _create_key(length=50):
