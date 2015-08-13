@@ -85,8 +85,8 @@ def _setup_variables():
     env.source_folder = env.dest_folder + '/source'
 
 def _settings_prompt():
-    if exists('/etc/default/gunicorn-{}'.format(env.host)):
-        settings = _get_remote_settings()
+    settings = _get_remote_settings()
+    if settings:
         show = confirm('Settings file found on remote, show its contents?',
                 default=True)
         if show:
@@ -159,6 +159,8 @@ def _deploy_settings_file():
 
 def _get_remote_settings():
     """Get the EnvironmentFile from the host and return it as a dictonary"""
+    if not exists('/etc/default/gunicorn-{}'.format(env.host)):
+        return None
     setting_re = re.compile(r'([A-Z_]+)="(.*)"')
     settings = {}
     get('/etc/default/gunicorn-{}'.format(env.host), '/tmp/%(host)s/envvars')#,
@@ -201,6 +203,11 @@ def _create_key(length=50):
     try:
         return env.secret_key
     except AttributeError:
+        # Try to receive the settings and return its secret key
+        settings = _get_remote_settings()
+        if settings is not None:
+            return settings['ROTD_SECRET_KEY']
+        # If the settings do not exist we generate a new key
         chars = 'qwertyuiopasdfghjklzxcvbnmQWERTYIOPASDFGHJKLZXCVBNM' + \
                 '1234567890!@#$%^&*()_+-='
         return ''.join(random.SystemRandom().choice(chars)
