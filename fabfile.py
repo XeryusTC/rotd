@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
-from fabric.api import env, local, prompt, put, settings, sudo, run
+from fabric.api import env, get, local, prompt, put, settings, sudo, run
 from fabric.context_managers import hide, prefix
 from fabric.contrib.console import confirm
 from fabric.contrib.files import append, exists, sed
 from getpass import getpass
 import random
+import re
 import sys
 
 REPO_URL = 'https://github.com/XeryusTC/rotd.git'
@@ -84,6 +85,27 @@ def _setup_variables():
     env.source_folder = env.dest_folder + '/source'
 
 def _settings_prompt():
+    if exists('/etc/default/gunicorn-{}'.format(env.host)):
+        settings = _get_remote_settings()
+        show = confirm('Settings file found on remote, show its contents?',
+                default=True)
+        if show:
+            for k, v in settings.items():
+                print k + ' = ' + v
+        # The secret key is never changed if it is available, other settings
+        # can be overwritten
+        env.secret_key = settings['ROTD_SECRET_KEY']
+        keep = confirm('Keep settings?', default=True)
+        if keep:
+            settings_map = (('db_name', 'ROTD_DB_PASSWORD'), ('db_user',
+                'ROTD_DB_USER'), ('db_pass', 'ROTD_DB_PASSWORD'),
+                ('email_host', 'ROTD_EMAIL_HOST'), ('email_port',
+                'ROTD_EMAIL_PORT'), ('email_user', 'ROTD_EMAIL_HOST_USER'),
+                ('email_pass', 'ROTD_EMAIL_HOST_PASSWORD'))
+            for e, s in settings_map:
+                env[e] = settings[s]
+            return
+
     env.db_name = prompt('Database name: ', default='rotd')
     env.db_user = prompt('Database user: ', default='rotd')
     env.db_pass = getpass('Database password: ')
@@ -135,6 +157,18 @@ def _deploy_settings_file():
         with settings(warn_only=True):
             sudo('systemctl restart gunicorn-{}.service'.format(env.host))
 
+def _get_remote_settings():
+    """Get the EnvironmentFile from the host and return it as a dictonary"""
+    setting_re = re.compile(r'([A-Z_]+)="(.*)"')
+    settings = {}
+    get('/etc/default/gunicorn-{}'.format(env.host), '/tmp/%(host)s/envvars')#,
+            #use_sudo=True)
+    with open('/tmp/{}/envvars'.format(env.host), 'r') as f:
+        for line in f.readlines():
+            m = re.search(setting_re, line)
+            settings[m.group(1)] = m.group(2)
+    return settings
+
 def _build_and_deploy_system_files():
     enable = _get_enable_var()
 
@@ -164,9 +198,13 @@ def _build_and_deploy_system_files():
         sudo('systemctl restart nginx')
 
 def _create_key(length=50):
-    chars = 'qwertyuiopasdfghjklzxcvbnmQWERTYIOPASDFGHJKLZXCVBNM' + \
-            '1234567890!@#$%^&*()_+-='
-    return ''.join(random.SystemRandom().choice(chars) for _ in range(length))
+    try:
+        return env.secret_key
+    except AttributeError:
+        chars = 'qwertyuiopasdfghjklzxcvbnmQWERTYIOPASDFGHJKLZXCVBNM' + \
+                '1234567890!@#$%^&*()_+-='
+        return ''.join(random.SystemRandom().choice(chars)
+                for _ in range(length))
 
 def _create_folder_structure(folder):
     for subfolder in ('static', 'virtualenv', 'source'):
