@@ -65,6 +65,12 @@ def update_settings():
     _settings_prompt()
     _deploy_settings_file()
 
+def _get_enable_var():
+    try:
+        return env.enable
+    except AttributeError:
+        return False
+
 def _setup_variables():
     # skip setup if settings are already setup
     try:
@@ -101,10 +107,7 @@ def _deploy_settings_file():
     """Create the EnvironmentFile as required by systemd."""
     # Make sure that settings are set, assume we don't want to upload
     # unless explicitly specified otherwise
-    try:
-        enable = env.enable
-    except AttributeError:
-        enable = False
+    enable = _get_enable_var()
     try:
         env.email_host
     except AttributeError:
@@ -133,10 +136,7 @@ def _deploy_settings_file():
             sudo('systemctl restart gunicorn-{}.service'.format(env.host))
 
 def _build_and_deploy_system_files():
-    try:
-        enable = env.enable
-    except AttributeError:
-        enable = False
+    enable = _get_enable_var()
 
     # set up systemd to run gunicorn, build the EnvFile first
     _deploy_settings_file()
