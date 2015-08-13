@@ -37,6 +37,7 @@ def provision():
     _setup_variables()
     _settings_prompt()
     env.enable = confirm('Enable site (this activates generated config)?')
+    env.setup_ssl  = confirm('Enable SSL?', default=False)
     _create_folder_structure(env.dest_folder)
     _setup_database()
     _deploy_settings_file()
@@ -118,7 +119,6 @@ def _settings_prompt():
     if env.email_pass != email_pass2:
         print("Email passwords are not the same.")
         sys.exit(1)
-    env.setup_ssl  = confirm('Enable SSL?', default=False)
 
 def _deploy_settings_file():
     """Create the EnvironmentFile as required by systemd."""
@@ -191,7 +191,7 @@ def _build_and_deploy_system_files():
         put('nginx', '/etc/nginx/sites-available/{}'.format(env.host),
                 use_sudo=True)
         sudo('ln -s /etc/nginx/sites-available/{host} \
-                /etc/nginx/sites-enables/{host}'.format(host=env.host))
+                /etc/nginx/sites-enabled/{host}'.format(host=env.host))
         sudo('systemctl restart nginx')
 
 def _create_key(length=50):
