@@ -39,17 +39,12 @@ def provision():
     env.enable = confirm('Enable site (this activates generated config)?')
     _create_folder_structure(env.dest_folder)
     _setup_database()
-
-    # Make sure all files are downloaded and Django is set up
-    _get_latest_source(env.source_folder)
-    _update_virtualenv(env.dest_folder)
-
     _deploy_settings_file()
-    _build_and_deploy_system_files()
 
-    # Finish the final steps that rely on the environment being set up
-    _update_database(env.source_folder)
-    _update_static_files(env.source_folder)
+    deploy()
+
+    # Finally start all the services
+    _build_and_deploy_system_files()
 
 def deploy():
     """Update the source and associated files."""
