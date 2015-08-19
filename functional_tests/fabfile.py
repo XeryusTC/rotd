@@ -35,4 +35,6 @@ def create_admin_on_server(username, password, email):
         email=email))
 
 def create_testrecipe_on_server():
-    run('{manage} create_testrecipe'.format(manage=_get_manage_py(env.host)))
+    slug = run('{manage} create_testrecipe'.format(
+        manage=_get_manage_py(env.host)))
+    print(slug)

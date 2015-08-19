@@ -30,3 +30,4 @@ class Command(BaseCommand):
         r.save()
         r.add_date = datetime.date.today() - datetime.timedelta(days=2)
         r.save()
+        self.stdout.write(r.slug)

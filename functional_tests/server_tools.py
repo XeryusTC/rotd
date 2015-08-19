@@ -31,5 +31,6 @@ def reset_database(host):
             cwd=THIS_FOLDER)
 
 def create_testrecipe_on_server(host):
-    subprocess.check_call(['fab', 'create_testrecipe_on_server',
-        '--host={}'.format(host)], cwd=THIS_FOLDER)
+    return subprocess.check_output(['fab', 'create_testrecipe_on_server',
+        '--host={}'.format(host), '--hide=everything,status'],
+        cwd=THIS_FOLDER).decode().strip()
