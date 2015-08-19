@@ -135,3 +135,20 @@ class ContactPageTest(TestCase):
         contact(request)
 
         self.assertEqual(len(mail.outbox), 1)
+
+class RecipeDetailsPageTest(TestCase):
+    def test_recipe_details_page_returns_correct_template(self):
+        recipe = factories.RecipeFactory()
+        response = self.client.get('/recipe/' + recipe.slug + '/')
+        self.assertTemplateUsed(response, 'recipes/recipe_detail.html')
+        self.assertTemplateUsed(response, 'base.html')
+
+    def test_recipe_details_page_returns_single_recipe(self):
+        recipe = factories.RecipeFactory()
+        response = self.client.get('/recipe/' + recipe.slug + '/')
+        self.assertIsInstance(response.context['recipe'], Recipe)
+
+    def test_recipe_details_page_returns_correct_recipe(self):
+        recipe = factories.RecipeFactory()
+        response = self.client.get('/recipe/' + recipe.slug + '/')
+        self.assertEqual(response.context['recipe'], recipe)

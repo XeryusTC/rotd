@@ -18,7 +18,7 @@
 import datetime
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView, DetailView
 
 from recipes.forms import ContactForm
 from recipes.models import Recipe
@@ -46,3 +46,6 @@ class ContactView(FormView):
 
 class ContactThanksView(TemplateView):
     template_name = 'recipes/contact_thanks.html'
+
+class RecipeDetailView(DetailView):
+    model = Recipe

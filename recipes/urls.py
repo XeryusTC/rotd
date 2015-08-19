@@ -23,4 +23,6 @@ urlpatterns = [
         url(r'^contact/$', views.ContactView.as_view(), name='contact'),
         url(r'^contact/thanks/$', views.ContactThanksView.as_view(),
             name='contact_thanks'),
+        url(r'^recipe/(?P<slug>[-\w]+)/$', views.RecipeDetailView.as_view(),
+            name='recipe'),
 ]
