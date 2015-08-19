@@ -27,6 +27,7 @@ import factory
 
 from .base import FunctionalTestCase
 from .server_tools import create_admin_on_server
+import recipes.factories
 
 class DjangoAdminTests(FunctionalTestCase):
     def setUp(self):
@@ -85,6 +86,38 @@ class DjangoAdminTests(FunctionalTestCase):
         # She sees that there is one recipe on the page
         body = self.browser.find_element_by_tag_name('body')
         self.assertIn('1 recipe', body.text)
+
+    def test_admin_site_links_to_recipe_detail_page(self):
+        # Create a dummy recipe
+        if self.against_staging:
+            create_testrecipe_on_server(self.server_host)
+        else:
+            recipes.factories.RecipeFactory()
+        # Alice is an admin who goes to the admin site
+        self.admin_login(self.username, self.password)
+
+        # She navigates to the recipes
+        recipe_links = self.browser.find_elements_by_link_text('Recipes')
+        recipe_links[1].click()
+
+        # Sanity check, there should be recipes available
+        body = self.browser.find_element_by_tag_name('body')
+        self.assertNotIn('0 recipes', body.text)
+
+        # She clicks on the first recipe in the list
+        results = self.browser.find_element_by_id('result_list')
+        link = results.find_elements_by_tag_name('a')[0]
+        link.click()
+
+        # She sees a 'visit on site' link and clicks it
+        link = self.browser.find_element_by_link_text('View on site')
+        link.click()
+
+        # She ends up at the detail page of the recipe (smoke test)
+        self.wait_for(lambda : self.assertIn('/recipe/',
+            self.browser.current_url))
+        self.assertGreater(len(self.browser.title), 0)
+        self.assertNotIn('Recept van de dag', self.browser.title)
 
     @skip
     def test_admin_honeypot_set_up(self):

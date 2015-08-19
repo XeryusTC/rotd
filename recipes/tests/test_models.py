@@ -69,3 +69,8 @@ class RecipeModelTests(TestCase):
         # We do not care about "weird" slugs starting with a dash or other
         # malformed slugs
         self.assertRegex(r.slug, r'^[a-z0-9_-]+$')
+
+    def test_recipe_specifies_absolute_url(self):
+        r = factories.RecipeFactory()
+        self.assertIsInstance(r.get_absolute_url(), str)
+        self.assertGreater(len(r.get_absolute_url()), 0)

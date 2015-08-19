@@ -30,5 +30,9 @@ class Recipe(models.Model):
             self.slug = slugify(self.name)
         super(Recipe, self).save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('recipes:recipe', kwargs={'slug': self.slug})
+
     def __str__(self):
         return self.name
