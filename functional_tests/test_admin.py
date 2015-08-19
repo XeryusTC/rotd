@@ -21,6 +21,7 @@ from django.test import LiveServerTestCase
 from django.core.management import call_command
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from unittest import skip
 
 import factory
 
@@ -85,6 +86,7 @@ class DjangoAdminTests(FunctionalTestCase):
         body = self.browser.find_element_by_tag_name('body')
         self.assertIn('1 recipe', body.text)
 
+    @skip
     def test_admin_honeypot_set_up(self):
         # Trudy tries to break into the admin site at the default url
         self.browser.get(self.server_url + '/admin/')
