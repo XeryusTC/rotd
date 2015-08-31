@@ -19,7 +19,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.db.utils import IntegrityError
 
-from recipes.models import Recipe
+from recipes.models import Recipe, Ingredient
 from recipes import factories
 
 class RecipeModelTests(TestCase):
@@ -74,3 +74,13 @@ class RecipeModelTests(TestCase):
         r = factories.RecipeFactory()
         self.assertIsInstance(r.get_absolute_url(), str)
         self.assertGreater(len(r.get_absolute_url()), 0)
+
+
+class IngredientModelTests(TestCase):
+    def test_ingredient_has_name(self):
+        Ingredient.objects.create(name='Test recipe')
+
+    def test_ingredient_name_required(self):
+        i = factories.IngredientFactory(name='')
+        with self.assertRaises(ValidationError):
+            i.full_clean()
