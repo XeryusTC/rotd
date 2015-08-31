@@ -26,7 +26,7 @@ from unittest import skip
 import factory
 
 from .base import FunctionalTestCase
-from .server_tools import create_admin_on_server
+from .server_tools import create_admin_on_server, create_testrecipe_on_server
 import recipes.factories
 
 class DjangoAdminTests(FunctionalTestCase):
