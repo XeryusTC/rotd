@@ -114,7 +114,7 @@ class DjangoAdminTests(FunctionalTestCase):
         link.click()
 
         # She ends up at the detail page of the recipe (smoke test)
-        self.wait_for(lambda : self.assertIn('/recipe/',
+        self.wait_for(lambda : self.assertIn('/recept/',
             self.browser.current_url))
         self.assertGreater(len(self.browser.title), 0)
         self.assertNotIn('Recept van de dag', self.browser.title)

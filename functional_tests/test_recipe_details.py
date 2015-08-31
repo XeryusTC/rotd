@@ -29,7 +29,7 @@ class RecipeDetailPageTest(FunctionalTestCase):
             recipe = recipe.slug
 
         # Alice is a visitor who remembered the specific url for a recipe
-        self.browser.get(self.server_url + '/recipe/' + recipe + '/')
+        self.browser.get(self.server_url + '/recept/' + recipe + '/')
 
         # The title of the page contains the name of the recipe
         self.assertGreater(len(self.browser.title), 0)
