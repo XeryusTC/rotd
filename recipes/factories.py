@@ -13,3 +13,9 @@ class RecipeFactory(factory.DjangoModelFactory):
     def post(obj, create, extracted, **kwargs):
         if not extracted:
             obj.add_date = datetime.date.today() - datetime.timedelta(days=1)
+
+class IngredientFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = 'recipes.Ingredient'
+
+    name = factory.Sequence(lambda n: 'Ingredient %d' % n)

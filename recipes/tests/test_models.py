@@ -17,6 +17,7 @@
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.db import models
 from django.db.utils import IntegrityError
 
 from recipes.models import Recipe, Ingredient
@@ -84,3 +85,10 @@ class IngredientModelTests(TestCase):
         i = factories.IngredientFactory(name='')
         with self.assertRaises(ValidationError):
             i.full_clean()
+
+    def test_ingredient_can_be_used_in_recipe(self):
+        il = factories.IngredientFactory.create_batch(5)
+        r = factories.RecipeFactory()
+        r.ingredient_set.add(*il)
+        for i in il:
+            self.assertIn(r, i.used_in.all())

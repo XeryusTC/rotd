@@ -36,3 +36,10 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
+
+class Ingredient(models.Model):
+    name = models.CharField(max_length=64, blank=False, default='')
+    used_in = models.ManyToManyField(Recipe)
+
+    def __str(self):
+        return self.name

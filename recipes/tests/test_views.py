@@ -152,8 +152,3 @@ class RecipeDetailsPageTest(TestCase):
         recipe = factories.RecipeFactory()
         response = self.client.get('/recept/' + recipe.slug + '/')
         self.assertEqual(response.context['recipe'], recipe)
-
-    def test_ingredients_on_recipe_detail_page(self):
-        ingredients = factories.IngredientFactory.build_batch(5)
-        recipe = factories.RecipeFactory()
-        self.fail('finish')
