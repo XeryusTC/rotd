@@ -92,3 +92,7 @@ class IngredientModelTests(TestCase):
         r.ingredient_set.add(*il)
         for i in il:
             self.assertIn(r, i.used_in.all())
+
+    def test_string_representation(self):
+        ingredient = factories.IngredientFactory(name='test ingredient')
+        self.assertEquals(str(ingredient), 'test ingredient')
