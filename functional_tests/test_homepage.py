@@ -26,9 +26,9 @@ class HomePageRecipeTests(FunctionalTestCase):
     def test_can_see_todays_recipe(self):
         # Create a dummy recipe
         if self.against_staging:
-            create_testrecipe_on_server(self.server_host)
+            create_testrecipe_on_server(self.server_host, 'Test recipe')
         else:
-            recipes.factories.RecipeFactory()
+            recipes.factories.RecipeFactory(name='Test recipe')
 
         # Alice goes to our website
         self.browser.get(self.server_url)
@@ -42,7 +42,7 @@ class HomePageRecipeTests(FunctionalTestCase):
 
         # There is a title of a recipe on the page
         title = self.browser.find_element_by_id('recipe')
-        self.assertGreater(len(title.text), 0)
+        self.assertEqual(title.text, 'Test recipe')
         # There is also some description
         desc = self.browser.find_element_by_id('description')
         self.assertGreater(len(desc.text), 0)

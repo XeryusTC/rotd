@@ -90,9 +90,9 @@ class DjangoAdminTests(FunctionalTestCase):
     def test_admin_site_links_to_recipe_detail_page(self):
         # Create a dummy recipe
         if self.against_staging:
-            create_testrecipe_on_server(self.server_host)
+            create_testrecipe_on_server(self.server_host, 'Test recipe')
         else:
-            recipes.factories.RecipeFactory()
+            recipes.factories.RecipeFactory(name='Test recipe')
         # Alice is an admin who goes to the admin site
         self.admin_login(self.username, self.password)
 
@@ -116,8 +116,7 @@ class DjangoAdminTests(FunctionalTestCase):
         # She ends up at the detail page of the recipe (smoke test)
         self.wait_for(lambda : self.assertIn('/recept/',
             self.browser.current_url))
-        self.assertGreater(len(self.browser.title), 0)
-        self.assertNotIn('Recept van de dag', self.browser.title)
+        self.assertEqual(self.browser.title, 'Test recipe')
 
     @skip
     def test_admin_honeypot_set_up(self):

@@ -23,21 +23,21 @@ class RecipeDetailPageTest(FunctionalTestCase):
     def test_detail_page_exists(self):
         # Create a dummy recipe
         if self.against_staging:
-            recipe = create_testrecipe_on_server(self.server_host)
+            recipe = create_testrecipe_on_server(self.server_host,
+                'Test recipe')
         else:
-            recipe = recipes.factories.RecipeFactory()
+            recipe = recipes.factories.RecipeFactory(name='Test recipe')
             recipe = recipe.slug
 
         # Alice is a visitor who remembered the specific url for a recipe
         self.browser.get(self.server_url + '/recept/' + recipe + '/')
 
         # The title of the page contains the name of the recipe
-        self.assertGreater(len(self.browser.title), 0)
-        self.assertNotIn('Recept van de dag', self.browser.title)
+        self.assertEqual(self.browser.title, 'Test recipe')
 
         # There is a header which just says the name of the recipe
         header = self.browser.find_element_by_tag_name('h1')
-        self.assertGreater(len(header.text), 0)
+        self.assertEqual(header.text, 'Test recipe')
 
         # The description of the recipe is also on the page
         desc = self.browser.find_element_by_id('description')
