@@ -16,17 +16,15 @@
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
-from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.core.management import call_command
-import random
-import string
 from recipes.models import Recipe
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument('name', nargs='+')
+
     def handle(self, *args, **options):
-        r = Recipe(name=''.join(random.choice(string.ascii_letters) for _
-            in range(10)), description='description')
+        r = Recipe(name=' '.join(options['name']), description='description')
         r.save()
         r.add_date = datetime.date.today() - datetime.timedelta(days=2)
         r.save()
