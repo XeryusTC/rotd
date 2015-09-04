@@ -35,3 +35,14 @@ def create_testrecipe_on_server(host, name):
         'create_testrecipe_on_server:name={}'.format(name),
         '--host={}'.format(host), '--hide=everything,status'],
         cwd=THIS_FOLDER).decode().strip()
+
+def create_ingredient(host, name):
+    return subprocess.check_output(['fab',
+        'create_ingredient:name={}'.format(name),
+        '--host={}'.format(host), '--hide=everything,status'],
+        cwd=THIS_FOLDER).decode().strip()
+
+def add_ingredient_to_recipe(host, pk, slug):
+    subprocess.check_call(['fab',
+        'add_ingredient_to_recipe:pk={pk},slug={slug}'.format(pk=pk, slug=slug),
+        '--host={}'.format(host)], cwd=THIS_FOLDER)

@@ -16,7 +16,8 @@
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
 from .base import FunctionalTestCase
-from .server_tools import create_testrecipe_on_server
+from .server_tools import create_testrecipe_on_server, create_ingredient, \
+    add_ingredient_to_recipe
 import recipes.factories
 
 class RecipeDetailPageTest(FunctionalTestCase):
@@ -24,10 +25,19 @@ class RecipeDetailPageTest(FunctionalTestCase):
         # Create a dummy recipe
         if self.against_staging:
             recipe = create_testrecipe_on_server(self.server_host,
-                'Test recipe')
+                    'Test recipe')
+
+            ingreds = [ create_ingredient(self.server_host,
+                'Ingredient %s' % i) for i in range(3) ]
+
+            for i in ingreds:
+                add_ingredient_to_recipe(self.server_host, i, recipe)
         else:
             recipe = recipes.factories.RecipeFactory(name='Test recipe')
+            ingreds = recipes.factories.IngredientFactory.create_batch(3)
+            recipe.ingredient_set.add(*ingreds)
             recipe = recipe.slug
+            ingreds = [ str(i) for i in ingreds ]
 
         # Alice is a visitor who remembered the specific url for a recipe
         self.browser.get(self.server_url + '/recept/' + recipe + '/')
@@ -46,4 +56,7 @@ class RecipeDetailPageTest(FunctionalTestCase):
         # There is also a list of ingredients on the page
         ingredient_list = self.browser.find_element_by_id('ingredients')
         ingredients = ingredient_list.find_elements_by_tag_name('li')
-        self.assertGreater(len(ingredients), 0)
+        self.assertEqual(len(ingredients), 3)
+        # The list contains the right ingredients
+        for i in ingredients:
+            self.assertIn(i.text, ingreds)
