@@ -23,9 +23,11 @@ from recipes.models import Recipe, Ingredient
 class IngredientInline(admin.TabularInline):
     model = Ingredient.used_in.through
 
+@admin.register(Recipe, site=admin_site)
 class RecipeAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     inlines = [ IngredientInline ]
 
-admin_site.register(Recipe, RecipeAdmin)
-admin_site.register(Ingredient)
+@admin.register(Ingredient, site=admin_site)
+class IngredientAdmin(admin.ModelAdmin):
+    pass
