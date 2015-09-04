@@ -87,6 +87,68 @@ class DjangoAdminTests(FunctionalTestCase):
         body = self.browser.find_element_by_tag_name('body')
         self.assertIn('1 recipe', body.text)
 
+    def test_can_add_ingredients_to_recipe_via_admin_site(self):
+        # Create a dummy recipe
+        if self.against_staging:
+            create_testrecipe_on_server(self.server_host, 'Test recipe')
+        else:
+            recipes.factories.RecipeFactory(name='Test recipe')
+        # Alice is an admin that wants to add an ingredient
+        self.admin_login(self.username, self.password)
+
+        # She navigates to the ingredients
+        self.browser.find_element_by_link_text('Ingredients').click()
+
+        # There should be no ingredients yet
+        body = self.browser.find_element_by_tag_name('body')
+        self.assertIn('0 ingredients', body.text)
+        # She goes to add an ingredient
+        self.browser.find_element_by_link_text('Add ingredient').click()
+
+        # A form appears and she completes it
+        name_field = self.browser.find_element_by_name('name')
+        name_field.send_keys('Test ingredient')
+        name_field.send_keys(Keys.RETURN)
+
+        # She now sees that the ingredient is on the list
+        body = self.browser.find_element_by_tag_name('body')
+        self.assertIn('1 ingredient', body.text)
+        self.assertIn('Test ingredient', body.text)
+
+        # She goes to the recipes
+        self.browser.get(self.server_url + '/administratievehandelingen')
+        recipe_links = self.browser.find_elements_by_link_text('Recipes')
+        recipe_links[1].click()
+        # There should be a recipe, which she clicks
+        body = self.browser.find_element_by_tag_name('body')
+        self.assertIn('1 recipe', body.text)
+        results = self.browser.find_element_by_id('result_list')
+        link = results.find_elements_by_tag_name('a')[0]
+        link.click()
+
+        # There is an area where she can add ingredients, she selects
+        # the first box and selects the newly created ingredient
+        relation = self.browser.find_element_by_id('Ingredient_used_in-0')
+        select = relation.find_element_by_tag_name('select')
+        options = select.find_elements_by_tag_name('option')
+        self.assertEqual(len(options), 2)
+        self.assertIn('Test ingredient', options[1].text)
+        options[1].click()
+
+        # She saves the recipe
+        submit = self.browser.find_element_by_name('_continue')
+        submit.click()
+
+        # She goes to the recipe detail page
+        self.browser.find_element_by_link_text('View on site').click()
+
+        # On the recipe detail page the ingredient is listed in the
+        # ingredient section
+        ingredient_list = self.browser.find_element_by_id('ingredients')
+        ingredients = ingredient_list.find_elements_by_tag_name('li')
+        self.assertEqual(len(ingredients), 1)
+        self.assertEqual('Test ingredient', ingredients[0].text)
+
     def test_admin_site_links_to_recipe_detail_page(self):
         # Create a dummy recipe
         if self.against_staging:
