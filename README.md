@@ -33,42 +33,54 @@ Provisioning
 * postgres (9.4 is latest at time of writing)
 
 To get them on Debian:
-	sudo apt-get install nginx git python3 python3-pip \
-		postgresql-server-dev-9.4
-	sudo pip3 install virtualenv
-
-There are two template files in deploy\_tools that currently need editing by
-hand. In the future this can be done by running the 'fab provision' command.
-Currently you need to replace every instance of SITENAME in the files and
-filenames with the domain name of the site
-
-deploy\_tools/nginx.conf.template:
-	move to /etc/nginx/sites-available/SITENAME
-	update settings in /etc/nginx/sites-available/SITENAME
-	make symlink in /etc/nginx/sites-enabled/ to the file
-
+```
+sudo apt-get install nginx git python3 python3-pip postgresql-server-dev-9.4
+sudo pip3 install virtualenv
+```
+These commands are also run by the `fab requirements` command. Provisioning
+itself is done through the `fab provision` command. This will not only
+configure the website but also deploy the source code and start the relevant
+services.
 
 Installing
 ----------
 
 Installation is handled by Fabric, which only works under Python 2, to install
 run:
-	sudo pip fabric
+```
+sudo pip fabric
+```
 
-Tries to put everything under /var/www/sites/SITENAME/, has the following
-subdirectories:
+The `fab provision` command deploys the website and starts the relevant
+services. It puts everything under /var/www/sites/SITENAME/, which has the
+following subdirectories:
+```
 --- SITENAME
 	--- source
 	--- static
 	--- virtualenv
+```
+
+Updating
+--------
+
+Updating the website is done through the `fab deploy` and
+`fab update_settings` commands. The deploy command updates the code on the
+server but it doesn't restart services, this needs to be manually by running:
+`sudo systemctl service gunicorn-SITENAME restart` where SITENAME needs to be
+replaced by the domain of the website.
+
+The `fab update_settings` command updates the EnvironmentFile that holds all
+the settings for the website. Currently, when additional settings are added
+you will need to re-enter all the settings.
 
 Adding settings
 ---------------
 When adding settings that have to be configured through the EnvironmentFile
 then fabfile.py needs to be updated so that it also knows about the new
 setting. There are three places that need updating:
-* `settings\_map` in `\_settings\_prompt()` needs to have an extra tuple
+* `settings_map` in `_settings_prompt()` needs to have an extra tuple
   containing the fabric env variable and the EnvironmentFile variable.
-* A prompt for the setting needs to be added to `\_settings\_prompt()`.
-* `\_deploy\_settings\_file()` needs an extra 'sed' command to replace the new
+* A prompt for the setting needs to be added to `_settings_prompt()`.
+* `_deploy_settings_file()` needs an extra 'sed' command to replace the new
   variable in the EnvironmentFile.
