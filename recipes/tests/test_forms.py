@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.conf import settings
 from django.core import mail
 from django.test import TestCase
 
@@ -50,3 +51,7 @@ class ContactFormTests(TestCase):
         self.assertEqual(mail.outbox[0].from_email, 'test@test.test')
         self.assertIn('Test subject', mail.outbox[0].subject)
         self.assertIn('Test body', mail.outbox[0].body)
+
+    def test_mail_send_to_contact_address(self):
+        self.send_test_mail()
+        self.assertIn(settings.CONTACT_EMAIL, mail.outbox[0].to)

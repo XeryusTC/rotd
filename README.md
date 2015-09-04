@@ -61,3 +61,14 @@ subdirectories:
 	--- source
 	--- static
 	--- virtualenv
+
+Adding settings
+---------------
+When adding settings that have to be configured through the EnvironmentFile
+then fabfile.py needs to be updated so that it also knows about the new
+setting. There are three places that need updating:
+* `settings\_map` in `\_settings\_prompt()` needs to have an extra tuple
+  containing the fabric env variable and the EnvironmentFile variable.
+* A prompt for the setting needs to be added to `\_settings\_prompt()`.
+* `\_deploy\_settings\_file()` needs an extra 'sed' command to replace the new
+  variable in the EnvironmentFile.

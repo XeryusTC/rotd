@@ -28,6 +28,7 @@ EMAIL_HOST_PASSWORD = get_env_setting('ROTD_EMAIL_HOST_PASSWORD')
 EMAIL_HOST_USER = get_env_setting('ROTD_EMAIL_HOST_USER')
 EMAIL_PORT = get_env_setting('ROTD_EMAIL_PORT')
 EMAIL_USE_TLS = True
+CONTACT_EMAIL = get_env_setting('ROTD_CONTACT_EMAIL')
 
 TEMPLATES = [
     {

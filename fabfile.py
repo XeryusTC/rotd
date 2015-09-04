@@ -97,7 +97,8 @@ def _settings_prompt():
                 'ROTD_DB_USER'), ('db_pass', 'ROTD_DB_PASSWORD'),
                 ('email_host', 'ROTD_EMAIL_HOST'), ('email_port',
                 'ROTD_EMAIL_PORT'), ('email_user', 'ROTD_EMAIL_HOST_USER'),
-                ('email_pass', 'ROTD_EMAIL_HOST_PASSWORD'))
+                ('email_pass', 'ROTD_EMAIL_HOST_PASSWORD'), ('contact_email',
+                'ROTD_CONTACT_EMAIL'))
             for e, s in settings_map:
                 env[e] = settings[s]
             return
@@ -119,6 +120,8 @@ def _settings_prompt():
     if env.email_pass != email_pass2:
         print("Email passwords are not the same.")
         sys.exit(1)
+    env.contact_email = prompt('Contact form destination mail: ',
+            default='contact@{}'.format(env.host))
 
 def _deploy_settings_file():
     """Create the EnvironmentFile as required by systemd."""
@@ -139,6 +142,7 @@ def _deploy_settings_file():
     local("sed -i'' s/email_host/'{}'/g envvars".format(env.email_host))
     local("sed -i'' s/email_user/'{}'/g envvars".format(env.email_user))
     local("sed -i'' s/email_port/'{}'/g envvars".format(env.email_port))
+    local("sed -i'' s/contact_email/'{}'/g envvars".format(env.contact_email))
     with hide('running', 'stdout'):
         local("sed -i'' s/db_password/'{}'/g    envvars".format(env.db_pass))
         local("sed -i'' s/email_password/'{}'/g envvars".format(

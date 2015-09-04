@@ -106,3 +106,6 @@ STATICFILES_DIRS = (
 )
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../static'))
+
+# Custom settings
+CONTACT_EMAIL = 'test@test.com'
