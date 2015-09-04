@@ -27,11 +27,10 @@ class RecipeDetailPageTest(FunctionalTestCase):
             recipe = create_testrecipe_on_server(self.server_host,
                     'Test recipe')
 
-            ingreds = [ create_ingredient(self.server_host,
-                'Ingredient %s' % i) for i in range(3) ]
-
+            ingreds = ['Ingredient %s' % i for i in range(3)]
             for i in ingreds:
-                add_ingredient_to_recipe(self.server_host, i, recipe)
+                id = create_ingredient(self.server_host, i)
+                add_ingredient_to_recipe(self.server_host, id, recipe)
         else:
             recipe = recipes.factories.RecipeFactory(name='Test recipe')
             ingreds = recipes.factories.IngredientFactory.create_batch(3)
