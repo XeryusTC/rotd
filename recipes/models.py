@@ -39,7 +39,7 @@ class Recipe(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=64, blank=False, default='')
-    used_in = models.ManyToManyField(Recipe)
+    used_in = models.ManyToManyField(Recipe, blank=True)
 
     def __str__(self):
         return self.name

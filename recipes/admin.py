@@ -18,9 +18,14 @@
 from django.contrib import admin
 
 from common.admin import admin_site
-from recipes.models import Recipe
+from recipes.models import Recipe, Ingredient
+
+class IngredientInline(admin.TabularInline):
+    model = Ingredient.used_in.through
 
 class RecipeAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
+    inlines = [ IngredientInline ]
 
 admin_site.register(Recipe, RecipeAdmin)
+admin_site.register(Ingredient)
