@@ -7,11 +7,6 @@
 	<h1>{{ recipe.name }}</h1>
 </div>
 
-<div id="description" class="text-justify">
-	<h2>Omschrijving</h2>
-	{{ recipe.description|linebreaks }}
-</div>
-
 <div id="ingredients">
 	<h2>Ingredienti&euml;n</h2>
 	<ul>
@@ -19,6 +14,11 @@
 			<li>{{ i }}</li>
 		{% endfor %}
 	</ul>
+</div>
+
+<div id="description" class="text-justify">
+	<h2>Omschrijving</h2>
+	{{ recipe.description|linebreaks }}
 </div>
 {% endblock content %}
 
