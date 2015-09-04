@@ -23,7 +23,7 @@ class Recipe(models.Model):
             unique=True)
     description = models.TextField(default='')
     add_date = models.DateField(auto_now_add=True)
-    slug = models.SlugField(default='')
+    slug = models.SlugField(default='', unique=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:

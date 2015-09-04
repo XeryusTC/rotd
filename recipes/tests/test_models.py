@@ -71,6 +71,12 @@ class RecipeModelTests(TestCase):
         # malformed slugs
         self.assertRegex(r.slug, r'^[a-z0-9_-]+$')
 
+    def test_recipe_slugs_must_be_unique(self):
+        r1 = factories.RecipeFactory(name='recipe')
+        r1.save()
+        with self.assertRaises(IntegrityError):
+            r2 = factories.RecipeFactory(name='recipe*')
+
     def test_recipe_specifies_absolute_url(self):
         r = factories.RecipeFactory()
         self.assertIsInstance(r.get_absolute_url(), str)
