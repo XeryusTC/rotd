@@ -19,7 +19,7 @@ from django.conf.urls import url
 from recipes import views
 
 urlpatterns = [
-        url(r'^$', views.home_page, name='home'),
+        url(r'^$', views.RecipeDetailView.as_view(), name='home'),
         url(r'^contact/$', views.ContactView.as_view(), name='contact'),
         url(r'^contact/thanks/$', views.ContactThanksView.as_view(),
             name='contact_thanks'),

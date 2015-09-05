@@ -17,6 +17,7 @@
 
 import datetime
 from django.core.urlresolvers import reverse_lazy
+from django.http.response import Http404
 from django.shortcuts import render
 from django.views.generic import FormView, TemplateView, DetailView
 
@@ -49,3 +50,10 @@ class ContactThanksView(TemplateView):
 
 class RecipeDetailView(DetailView):
     model = Recipe
+
+    def get(self, request, **kwargs):
+        try:
+            return super(DetailView, self).get(request, **kwargs)
+        except (Http404, AttributeError):
+            return render(request, 'recipes/recipe_detail.html',
+                    {'recipe': todays_recipe()})

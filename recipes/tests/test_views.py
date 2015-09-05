@@ -26,7 +26,8 @@ from unittest.mock import Mock, patch
 
 from recipes.forms import ContactForm
 from recipes.models import Recipe
-from recipes.views import home_page, todays_recipe, ContactView
+from recipes.views import (home_page, todays_recipe, ContactView,
+        RecipeDetailView)
 from recipes import factories
 
 class HomePageViewTest(TestCase):
@@ -37,13 +38,14 @@ class HomePageViewTest(TestCase):
     def test_root_url_resolves_to_home_page_view(self):
         factories.RecipeFactory()
         found = resolve('/')
-        self.assertEqual(found.func, home_page)
+        self.assertEqual(found.func.__name__,
+                RecipeDetailView.as_view().__name__)
 
     def test_home_page_uses_correct_templates(self):
         factories.RecipeFactory()
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'base.html')
-        self.assertTemplateUsed(response, 'recipes/home.html')
+        self.assertTemplateUsed(response, 'recipes/recipe_detail.html')
 
     def test_home_page_degrades_gracefully_when_no_recipe(self):
         response = self.get_homepage_content().content.decode()
