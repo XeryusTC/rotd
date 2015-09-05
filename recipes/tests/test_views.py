@@ -18,21 +18,20 @@
 from datetime import date, datetime, timedelta
 from django.core import mail
 from django.core.urlresolvers import resolve
-from django.http import HttpRequest
-from django.template.loader import render_to_string
 from django.test import TestCase, RequestFactory
 import unittest
 from unittest.mock import Mock, patch
 
 from recipes.forms import ContactForm
 from recipes.models import Recipe
-from recipes.views import (home_page, todays_recipe, ContactView,
-        RecipeDetailView)
+from recipes.views import todays_recipe, ContactView, RecipeDetailView
 from recipes import factories
+
+home_page = RecipeDetailView.as_view()
 
 class HomePageViewTest(TestCase):
     def get_homepage_content(self):
-        request = HttpRequest()
+        request = RequestFactory().get('/')
         return home_page(request)
 
     def test_root_url_resolves_to_home_page_view(self):
@@ -94,7 +93,7 @@ class EveryDayNewRecipeTest(unittest.TestCase):
 
     @patch('recipes.views.todays_recipe')
     def test_home_page_uses_recipe_selector_new(self, mock_todays_recipe):
-        response = home_page(HttpRequest())
+        response = home_page(RequestFactory().get('/'))
         self.assertTrue(mock_todays_recipe.called)
 
     def test_adding_new_recipe_doesnt_change_todays_recipe(self):
