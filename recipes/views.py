@@ -56,4 +56,4 @@ class RecipeDetailView(DetailView):
             return super(DetailView, self).get(request, **kwargs)
         except (Http404, AttributeError):
             return render(request, 'recipes/recipe_detail.html',
-                    {'recipe': todays_recipe()})
+                    {'recipe': todays_recipe(), 'is_homepage': True})

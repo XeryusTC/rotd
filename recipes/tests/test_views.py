@@ -55,6 +55,16 @@ class HomePageViewTest(TestCase):
         response = self.client.get('/')
         self.assertIsInstance(response.context['recipe'], Recipe)
 
+    def test_home_page_knows_it_is_the_homepage(self):
+        response = self.client.get('/')
+        self.assertIn('is_homepage', response.context)
+        self.assertTrue(response.context['is_homepage'])
+
+    def test_detail_page_doesnt_have_is_homepage_var(self):
+        r = factories.RecipeFactory()
+        response = self.client.get(r.get_absolute_url())
+        self.assertNotIn('is_homepage', response.context)
+
     def test_home_page_shows_any_recipe_name(self):
         factories.RecipeFactory()
         response = self.get_homepage_content().content.decode()
