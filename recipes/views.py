@@ -32,10 +32,6 @@ def todays_recipe(day=datetime.date.today()):
     except ZeroDivisionError:
         pass
 
-def home_page(request):
-    recipe = todays_recipe()
-    return render(request, 'recipes/home.html', {'recipe': recipe})
-
 class ContactView(FormView):
     template_name = 'recipes/contact.html'
     form_class = ContactForm
