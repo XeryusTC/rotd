@@ -1,14 +1,25 @@
 {% extends 'base.html' %}
 
-{% block page_title %}{{ recipe.name }}{% endblock %}
+{% block page_title %}
+	{% if is_homepage %}
+		Recept van de dag
+	{% else %}
+		{{ recipe.name }}
+	{% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="text-center">
-	<h1>{{ recipe.name }}</h1>
+	{% if is_homepage %}
+		<h1>Recept van de dag</h1>
+	{% else %}
+		<h1> Recept informatie</h1>
+	{% endif %}
+	<h2 id="recipe">{{ recipe.name }}</h2>
 </div>
 
 <div id="ingredients">
-	<h2>Ingredienti&euml;n</h2>
+	<h3>Ingredienti&euml;n</h3>
 	<ul>
 		{% for i in recipe.ingredient_set.all %}
 			<li>{{ i }}</li>
@@ -17,7 +28,7 @@
 </div>
 
 <div id="description" class="text-justify">
-	<h2>Omschrijving</h2>
+	<h3>Omschrijving</h3>
 	{{ recipe.description|linebreaks }}
 </div>
 {% endblock content %}

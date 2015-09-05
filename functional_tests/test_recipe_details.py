@@ -44,8 +44,12 @@ class RecipeDetailPageTest(FunctionalTestCase):
         # The title of the page contains the name of the recipe
         self.assertEqual(self.browser.title, 'Test recipe')
 
-        # There is a header which just says the name of the recipe
+        # The main header says it is the recipe detail page
         header = self.browser.find_element_by_tag_name('h1')
+        self.assertEqual(header.text, 'Recept informatie')
+
+        # There is a header which just says the name of the recipe
+        header = self.browser.find_element_by_id('recipe')
         self.assertEqual(header.text, 'Test recipe')
 
         # The description of the recipe is also on the page
