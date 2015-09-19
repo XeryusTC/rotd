@@ -117,7 +117,6 @@ class IngredientUsageModelTests(TestCase):
         r = factories.RecipeFactory()
         with self.assertRaises(IntegrityError):
             u = factories.IngredientUsageFactory(recipe=r, ingredient=i)
-            u.full_clean()
 
     def test_string_representation(self):
         i = factories.IngredientFactory(name='test ingredient')

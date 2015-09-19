@@ -21,7 +21,7 @@
 <div id="ingredients">
 	<h3>Ingredienti&euml;n</h3>
 	<ul>
-		{% for i in recipe.ingredient_set.all %}
+		{% for i in recipe.ingredientusage_set.all %}
 			<li>{{ i }}</li>
 		{% endfor %}
 	</ul>

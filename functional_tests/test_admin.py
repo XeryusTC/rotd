@@ -128,12 +128,17 @@ class DjangoAdminTests(FunctionalTestCase):
 
         # There is an area where she can add ingredients, she selects
         # the first box and selects the newly created ingredient
-        relation = self.browser.find_element_by_id('Ingredient_used_in-0')
+        relation = self.browser.find_element_by_id('ingredientusage_set-0')
         select = relation.find_element_by_tag_name('select')
         options = select.find_elements_by_tag_name('option')
         self.assertEqual(len(options), 2)
         self.assertIn('Test ingredient', options[1].text)
         options[1].click()
+
+        # She sets the quantity of the ingredient
+        quantity = relation.find_element_by_id(
+                'id_ingredientusage_set-0-quantity')
+        quantity.send_keys('3')
 
         # She saves the recipe
         submit = self.browser.find_element_by_name('_continue')
@@ -147,7 +152,7 @@ class DjangoAdminTests(FunctionalTestCase):
         ingredient_list = self.browser.find_element_by_id('ingredients')
         ingredients = ingredient_list.find_elements_by_tag_name('li')
         self.assertEqual(len(ingredients), 1)
-        self.assertEqual('Test ingredient', ingredients[0].text)
+        self.assertEqual('3 Test ingredient', ingredients[0].text)
 
     def test_admin_site_links_to_recipe_detail_page(self):
         # Create a dummy recipe
