@@ -179,30 +179,3 @@ class DjangoAdminTests(FunctionalTestCase):
         self.wait_for(lambda : self.assertIn('/recept/',
             self.browser.current_url))
         self.assertEqual(self.browser.title, 'Test recipe')
-
-    @skip
-    def test_admin_honeypot_set_up(self):
-        # Trudy tries to break into the admin site at the default url
-        self.browser.get(self.server_url + '/admin/')
-
-        # She sees the administration heading
-        body = self.browser.find_element_by_tag_name('body')
-        self.assertIn('Django administration', body.text)
-
-        # She types in a username and password and tries to log in
-        self.admin_login('qwerty', 'abcdef', '/admin/')
-        # She sees an error message
-        body = self.browser.find_element_by_tag_name('body')
-        self.assertIn('Please enter the correct username and pass', body.text)
-
-        # Alice is a valid admin who can login at the right URL
-        self.admin_login(self.username, self.password)
-
-        # She goes to the list of login attempts
-        attempts = self.browser.find_element_by_link_text('Login attempts')
-        attempts.click()
-
-        # She selects the login attempts for today and sees the login attempt
-        self.browser.find_element_by_link_text('Today').click()
-        results = self.browser.find_element_by_id('result_list')
-        self.assertIn('qwerty', results.text)
