@@ -95,10 +95,39 @@ class IngredientModelTests(TestCase):
     def test_ingredient_can_be_used_in_recipe(self):
         il = factories.IngredientFactory.create_batch(5)
         r = factories.RecipeFactory()
-        r.ingredient_set.add(*il)
+        for i in il:
+            factories.IngredientUsageFactory(recipe=r, ingredient=i,
+                    quantity=1)
         for i in il:
             self.assertIn(r, i.used_in.all())
 
     def test_string_representation(self):
         ingredient = factories.IngredientFactory(name='test ingredient')
         self.assertEquals(str(ingredient), 'test ingredient')
+
+class IngredientUsageModelTests(TestCase):
+    def test_usage_refers_to_recipe_and_ingredient(self):
+        i = factories.IngredientFactory()
+        r = factories.RecipeFactory()
+        u = factories.IngredientUsageFactory(recipe=r, ingredient=i,
+                quantity=1)
+
+    def test_usage_quantity_required(self):
+        i = factories.IngredientFactory()
+        r = factories.RecipeFactory()
+        with self.assertRaises(IntegrityError):
+            u = factories.IngredientUsageFactory(recipe=r, ingredient=i)
+            u.full_clean()
+
+    def test_string_representation(self):
+        i = factories.IngredientFactory(name='test ingredient')
+        r = factories.RecipeFactory(name='test recipe')
+        u = factories.IngredientUsageFactory(recipe=r, ingredient=i,
+                quantity=10)
+        self.assertEquals(str(u), '10 test ingredient')
+
+    def test_ingredient_has_through_field_set_to_usage_model(self):
+        i = factories.IngredientFactory()
+        r = factories.RecipeFactory()
+        with self.assertRaises(AttributeError):
+            r.ingredient_set.add(i)

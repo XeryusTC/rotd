@@ -19,3 +19,7 @@ class IngredientFactory(factory.DjangoModelFactory):
         model = 'recipes.Ingredient'
 
     name = factory.Sequence(lambda n: 'Ingredient %d' % n)
+
+class IngredientUsageFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = 'recipes.IngredientUsage'

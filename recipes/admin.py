@@ -18,10 +18,10 @@
 from django.contrib import admin
 
 from common.admin import admin_site
-from recipes.models import Recipe, Ingredient
+from recipes.models import Recipe, Ingredient, IngredientUsage
 
 class IngredientInline(admin.TabularInline):
-    model = Ingredient.used_in.through
+    model = IngredientUsage
 
 @admin.register(Recipe, site=admin_site)
 class RecipeAdmin(admin.ModelAdmin):

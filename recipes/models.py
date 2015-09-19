@@ -39,7 +39,17 @@ class Recipe(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=64, blank=False, default='')
-    used_in = models.ManyToManyField(Recipe, blank=True)
+    used_in = models.ManyToManyField(Recipe, blank=True,
+            through='IngredientUsage', related_name='ingredient_set')
 
     def __str__(self):
         return self.name
+
+class IngredientUsage(models.Model):
+    recipe = models.ForeignKey(Recipe)
+    ingredient = models.ForeignKey(Ingredient)
+    quantity = models.IntegerField()
+
+    def __str__(self):
+        return "{qty} {name}".format(qty=self.quantity,
+                name=self.ingredient.name)

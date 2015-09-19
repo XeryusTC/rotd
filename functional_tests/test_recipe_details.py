@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with ROTD.  If not, see <http://www.gnu.org/licenses/>.
 
+from random import randint
+
 from .base import FunctionalTestCase
 from .server_tools import create_testrecipe_on_server, create_ingredient, \
     add_ingredient_to_recipe
@@ -34,9 +36,10 @@ class RecipeDetailPageTest(FunctionalTestCase):
         else:
             recipe = recipes.factories.RecipeFactory(name='Test recipe')
             ingreds = recipes.factories.IngredientFactory.create_batch(3)
-            recipe.ingredient_set.add(*ingreds)
+            usage = [recipes.factories.IngredientUsageFactory(recipe=recipe,
+                ingredient=i, quantity=randint(1, 10)) for i in ingreds]
             recipe = recipe.slug
-            ingreds = [ str(i) for i in ingreds ]
+            ingreds = [ str(i) for i in usage ]
 
         # Alice is a visitor who remembered the specific url for a recipe
         self.browser.get(self.server_url + '/recept/' + recipe + '/')
@@ -60,6 +63,8 @@ class RecipeDetailPageTest(FunctionalTestCase):
         ingredient_list = self.browser.find_element_by_id('ingredients')
         ingredients = ingredient_list.find_elements_by_tag_name('li')
         self.assertEqual(len(ingredients), 3)
-        # The list contains the right ingredients
+        # The list contains the right ingredients, each one starts with a
+        # number
         for i in ingredients:
+            int(i.text[0])
             self.assertIn(i.text, ingreds)
