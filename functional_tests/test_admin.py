@@ -184,3 +184,49 @@ class DjangoAdminTests(FunctionalTestCase):
         self.wait_for(lambda : self.assertIn('/recept/',
             self.browser.current_url))
         self.assertEqual(self.browser.title, 'Test recipe')
+
+    def test_can_create_ingredient_from_admin_site(self):
+        # Alice is an admin that wants to create an ingredient
+        self.admin_login(self.username, self.password)
+
+        # She navigates tot he ingredients
+        self.browser.find_element_by_link_text('Ingredients').click()
+
+        # There should be no ingredients yet
+        body = self.browser.find_element_by_tag_name('body')
+        self.assertIn('0 ingredients', body.text)
+        # She goes to add an ingredient
+        self.browser.find_element_by_link_text('Add ingredient').click()
+
+        # A form appears and she completes it
+        name_field = self.browser.find_element_by_name('name')
+        name_field.send_keys('Test ingredient')
+        name_field.send_keys(Keys.RETURN)
+
+        # She now sees that the ingredient is on the list
+        body = self.browser.find_element_by_tag_name('body')
+        self.assertIn('1 ingredient', body.text)
+        self.assertIn('Test ingredient', body.text)
+
+        # She goes to add another ingredient with a quantity type
+        self.browser.find_element_by_link_text('Add ingredient').click()
+        name_field = self.browser.find_element_by_name('name')
+        name_field.send_keys('Test ingredient with type')
+        type_field = self.browser.find_element_by_name('type')
+        options = type_field.find_elements_by_tag_name('option')
+
+        self.assertGreater(len(options), 0)
+        self.assertIn('---------', [o.text for o in options])
+        #She selects the centilitre type
+        for option in options:
+            if 'centiliter' in option.text:
+                option.click()
+
+        # She saves the recipe
+        name_field.send_keys(Keys.RETURN)
+
+        # She returns to the recipe page and sees both ingredients were
+        # added to the database
+        body = self.browser.find_element_by_tag_name('body')
+        self.assertIn('2 ingredients', body.text)
+        self.assertIn('Test ingredient with type (centiliter)', body.text)

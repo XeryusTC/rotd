@@ -101,9 +101,27 @@ class IngredientModelTests(TestCase):
         for i in il:
             self.assertIn(r, i.used_in.all())
 
+    def test_ingredient_has_type_field(self):
+        i = factories.IngredientFactory(type=Ingredient.LITRE)
+        i.full_clean()
+
+    def test_ingredient_type_can_be_empty(self):
+        i = factories.IngredientFactory(type='')
+        i.full_clean()
+
+    def test_ingredient_type_doesnt_accept_invalid_types(self):
+        i = factories.IngredientFactory(type='This type doesnt exist')
+        with self.assertRaises(ValidationError):
+            i.full_clean()
+
     def test_string_representation(self):
         ingredient = factories.IngredientFactory(name='test ingredient')
         self.assertEquals(str(ingredient), 'test ingredient')
+
+    def test_string_representation_with_type(self):
+        ingredient = factories.IngredientFactory(name='test ingredient',
+                type=Ingredient.GRAM)
+        self.assertEquals(str(ingredient), 'test ingredient (gram)')
 
 class IngredientUsageModelTests(TestCase):
     def test_usage_refers_to_recipe_and_ingredient(self):

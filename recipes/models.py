@@ -38,12 +38,26 @@ class Recipe(models.Model):
         return self.name
 
 class Ingredient(models.Model):
+    GRAM  = 'gr'
+    LITRE = 'cL'
+    CLOVE = 'co'
+    TYPE_CHOICES = (
+            (GRAM, 'gram'),
+            (LITRE, 'centiliter'),
+            (CLOVE, 'teen'),
+        )
+
     name = models.CharField(max_length=64, blank=False, default='')
     used_in = models.ManyToManyField(Recipe, blank=True,
             through='IngredientUsage', related_name='ingredient_set')
+    type = models.CharField(max_length=2, choices=TYPE_CHOICES, blank=True)
 
     def __str__(self):
-        return self.name
+        if self.type == '':
+            return self.name
+        else:
+            return "{name} ({type})".format(name=self.name,
+                    type=self.get_type_display())
 
 class IngredientUsage(models.Model):
     recipe = models.ForeignKey(Recipe)
