@@ -65,5 +65,10 @@ class IngredientUsage(models.Model):
     quantity = models.IntegerField()
 
     def __str__(self):
-        return "{qty} {name}".format(qty=self.quantity,
+        if self.ingredient.type == '':
+            return "{qty} {name}".format(qty=self.quantity,
                 name=self.ingredient.name)
+        else:
+            return "{qty} {type} {name}".format(qty=self.quantity,
+                name=self.ingredient.name,
+                type=self.ingredient.get_type_display())

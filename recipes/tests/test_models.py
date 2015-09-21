@@ -143,6 +143,21 @@ class IngredientUsageModelTests(TestCase):
                 quantity=10)
         self.assertEquals(str(u), '10 test ingredient')
 
+    def test_string_repr_uses_ingredient_type(self):
+        i = factories.IngredientFactory(type=Ingredient.GRAM)
+        r = factories.RecipeFactory()
+        u = factories.IngredientUsageFactory(recipe=r, ingredient=i,
+                quantity=1)
+        self.assertIn(i.get_type_display(), str(u))
+
+    def test_string_repr_doesnt_use_ingredient_repr(self):
+        """Test if string is formatted like <qty> <type> <name>"""
+        i = factories.IngredientFactory(type=Ingredient.GRAM)
+        r = factories.RecipeFactory()
+        u = factories.IngredientUsageFactory(recipe=r, ingredient=i,
+                quantity=1)
+        self.assertNotIn(str(i), str(u))
+
     def test_ingredient_has_through_field_set_to_usage_model(self):
         i = factories.IngredientFactory()
         r = factories.RecipeFactory()
