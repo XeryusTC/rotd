@@ -85,7 +85,7 @@ class DjangoAdminTests(FunctionalTestCase):
 
         # She sees that there is one recipe on the page
         body = self.browser.find_element_by_tag_name('body')
-        self.assertIn('1 recipe', body.text)
+        self.wait_for(lambda : self.assertIn('1 recipe', body.text))
 
     def test_can_add_ingredients_to_recipe_via_admin_site(self):
         # Create a dummy recipe
@@ -112,7 +112,7 @@ class DjangoAdminTests(FunctionalTestCase):
 
         # She now sees that the ingredient is on the list
         body = self.browser.find_element_by_tag_name('body')
-        self.assertIn('1 ingredient', body.text)
+        self.wait_for(lambda : self.assertIn('1 ingredient', body.text))
         self.assertIn('Test ingredient', body.text)
 
         # She goes to the recipes
@@ -205,7 +205,7 @@ class DjangoAdminTests(FunctionalTestCase):
 
         # She now sees that the ingredient is on the list
         body = self.browser.find_element_by_tag_name('body')
-        self.assertIn('1 ingredient', body.text)
+        self.wait_for(lambda : self.assertIn('1 ingredient', body.text))
         self.assertIn('Test ingredient', body.text)
 
         # She goes to add another ingredient with a quantity type
@@ -228,5 +228,5 @@ class DjangoAdminTests(FunctionalTestCase):
         # She returns to the recipe page and sees both ingredients were
         # added to the database
         body = self.browser.find_element_by_tag_name('body')
-        self.assertIn('2 ingredients', body.text)
+        self.wait_for(lambda : self.assertIn('2 ingredients', body.text))
         self.assertIn('Test ingredient with type (centiliter)', body.text)

@@ -42,8 +42,10 @@ def create_ingredient(host, name, type=''):
         '--host={}'.format(host), '--hide=everything,status'],
         cwd=THIS_FOLDER).decode().strip()
 
-def add_ingredient_to_recipe(host, pk, slug, quantity):
+def add_ingredient_to_recipe(host, pk, slug, quantity=1):
     command = 'add_ingredient_to_recipe:pk={pk},slug={slug},' + \
-            'quantity={quantity}'.format(pk=pk, slug=slug, quantity=quantity)
-    subprocess.check_call(['fab', command, '--host={}'.format(host)],
-            cwd=THIS_FOLDER)
+            'quantity={quantity}'
+    command = command
+    return subprocess.check_output(['fab', command.format(pk=pk, slug=slug,
+        quantity=quantity), '--host={}'.format(host),
+        '--hide=everything,status'], cwd=THIS_FOLDER).decode().strip()

@@ -43,3 +43,4 @@ class Command(BaseCommand):
                 quantity=options['quantity'])
         u.full_clean()
         u.save()
+        self.stdout.write(str(u))

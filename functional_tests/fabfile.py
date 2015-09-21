@@ -45,5 +45,7 @@ def create_ingredient(name, type):
     print(pk)
 
 def add_ingredient_to_recipe(pk, slug, quantity):
-    run('{manage} add_ingredient_to_recipe {pk} {slug} {quantity}'.format(
-        pk=pk, slug=slug, quantity=quantity, manage=_get_manage_py(env.host)))
+    command = '{manage} add_ingredient_to_recipe {pk} {slug} -q {quantity}'
+    name = run(command.format(pk=pk, slug=slug, quantity=quantity,
+        manage=_get_manage_py(env.host)))
+    print(name)
