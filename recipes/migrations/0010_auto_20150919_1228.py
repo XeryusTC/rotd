@@ -10,7 +10,8 @@ def change_to_usage(apps, schema_editor):
 
     for recipe in Recipe.objects.all():
         for ingredient in recipe.ingredient_set.all():
-            u = IngredientUsage(recipe=r, ingredient=i, quantity=1)
+            u = IngredientUsage(recipe=recipe, ingredient=ingredient,
+                    quantity=1)
             u.save()
 
 class Migration(migrations.Migration):
