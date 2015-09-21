@@ -39,11 +39,11 @@ def create_testrecipe_on_server(name):
         manage=_get_manage_py(env.host), name=name))
     print(slug)
 
-def create_ingredient(name):
-    pk = run('{manage} create_ingredient {name}'.format(name=name,
-        manage=_get_manage_py(env.host)))
+def create_ingredient(name, type):
+    pk = run('{manage} create_ingredient {name} -t {type}'.format(name=name,
+        manage=_get_manage_py(env.host), type=type))
     print(pk)
 
-def add_ingredient_to_recipe(pk, slug):
-    run('{manage} add_ingredient_to_recipe {pk} {slug}'.format(pk=pk,
-        slug=slug, manage=_get_manage_py(env.host)))
+def add_ingredient_to_recipe(pk, slug, quantity):
+    run('{manage} add_ingredient_to_recipe {pk} {slug} {quantity}'.format(
+        pk=pk, slug=slug, quantity=quantity, manage=_get_manage_py(env.host)))

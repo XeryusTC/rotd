@@ -17,12 +17,14 @@
 
 import datetime
 from django.core.management.base import BaseCommand, CommandError
-from recipes.models import Recipe, Ingredient
+from recipes.models import Recipe, Ingredient, IngredientUsage
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('ingredient_pk')
         parser.add_argument('recipe_slug')
+        parser.add_argument('-q', '--quantity', type=int, const=1, default=1,
+                nargs='?')
 
     def handle(self, *args, **options):
         try:
@@ -37,4 +39,7 @@ class Command(BaseCommand):
             raise CommandError('Ingredient {} does not exist'.format(
                 options['ingredient_pk']))
 
-        r.ingredient_set.add(i)
+        u = IngredientUsage(recipe=r, ingredient=i,
+                quantity=options['quantity'])
+        u.full_clean()
+        u.save()

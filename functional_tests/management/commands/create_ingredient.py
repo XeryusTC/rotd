@@ -20,9 +20,11 @@ from recipes.models import Ingredient
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
+        parser.add_argument('--type', '-t', nargs='?', default='', const='')
         parser.add_argument('name', nargs='+')
 
     def handle(self, *args, **options):
-        i = Ingredient(name=' '.join(options['name']))
+        i = Ingredient(name=' '.join(options['name']), type=options['type'])
+        i.full_clean()
         i.save()
         self.stdout.write(str(i.pk))
