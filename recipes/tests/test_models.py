@@ -123,6 +123,7 @@ class IngredientModelTests(TestCase):
                 type=Ingredient.GRAM)
         self.assertEquals(str(ingredient), 'test ingredient (gram)')
 
+
 class IngredientUsageModelTests(TestCase):
     def test_usage_refers_to_recipe_and_ingredient(self):
         i = factories.IngredientFactory()
@@ -157,6 +158,13 @@ class IngredientUsageModelTests(TestCase):
         u = factories.IngredientUsageFactory(recipe=r, ingredient=i,
                 quantity=1)
         self.assertNotIn(str(i), str(u))
+
+    def test_string_repr_doesnt_show_quantity_if_set_to_zero(self):
+        i = factories.IngredientFactory(name='test ingredient')
+        r = factories.RecipeFactory()
+        u = factories.IngredientUsageFactory(recipe=r, ingredient=i,
+                quantity=0)
+        self.assertEqual(str(u), 'test ingredient')
 
     def test_ingredient_has_through_field_set_to_usage_model(self):
         i = factories.IngredientFactory()
