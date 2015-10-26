@@ -93,7 +93,7 @@ def _settings_prompt():
         env.secret_key = settings['ROTD_SECRET_KEY']
         keep = confirm('Keep settings?', default=True)
         if keep:
-            settings_map = (('db_name', 'ROTD_DB_PASSWORD'), ('db_user',
+            settings_map = (('db_name', 'ROTD_DB_NAME'), ('db_user',
                 'ROTD_DB_USER'), ('db_pass', 'ROTD_DB_PASSWORD'),
                 ('email_host', 'ROTD_EMAIL_HOST'), ('email_port',
                 'ROTD_EMAIL_PORT'), ('email_user', 'ROTD_EMAIL_HOST_USER'),
@@ -194,7 +194,7 @@ def _build_and_deploy_system_files():
     if enable:
         put('nginx', '/etc/nginx/sites-available/{}'.format(env.host),
                 use_sudo=True)
-        sudo('ln -s /etc/nginx/sites-available/{host} \
+        sudo('ln -fs /etc/nginx/sites-available/{host} \
                 /etc/nginx/sites-enabled/{host}'.format(host=env.host))
         sudo('systemctl restart nginx')
 
