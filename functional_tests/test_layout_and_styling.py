@@ -44,7 +44,11 @@ class LayoutTest(FunctionalTestCase):
     def test_footer_is_present(self):
         # Alice goes to the homepage
         self.browser.get(self.server_url)
+        self.browser.set_window_size(1024, 768)
 
         # At the bottom she sees a bit of text
         footer = self.browser.find_element_by_tag_name('footer')
         self.assertIn('Affero', footer.text)
+
+        # The footer is at the very bottom
+        self.assertAlmostEqual(footer.location['y'], 657, delta=10)
