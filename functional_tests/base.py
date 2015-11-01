@@ -50,7 +50,9 @@ class FunctionalTestCase(StaticLiveServerTestCase):
         self.browser.implicitly_wait(DEFAULT_WAIT)
 
     def tearDown(self):
-        self.browser.close()
+        for handle in self.browser.window_handles:
+            self.browser.switch_to_window(handle)
+            self.browser.close()
 
     def wait_for(self, func, timeout=DEFAULT_WAIT):
         start_time = time.time()
