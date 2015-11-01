@@ -17,6 +17,7 @@
 
 from selenium.webdriver.common.keys import Keys
 from unittest import skip
+from .server_tools import create_testrecipe_on_server
 from .base import FunctionalTestCase
 import recipes.factories
 
