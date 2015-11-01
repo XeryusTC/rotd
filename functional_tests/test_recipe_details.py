@@ -70,3 +70,34 @@ class RecipeDetailPageTest(FunctionalTestCase):
         for i in ingredients:
             int(i.text[0])
             self.assertIn(i.text, ingreds)
+
+    def test_can_share_via_twitter(self):
+        # Create a dummy recipe
+        if self.against_staging:
+            recipe = create_testrecipe_on_server(self.server_host,
+                    'Test recipe')
+        else:
+            recipe = recipes.factories.RecipeFactory(name='Test recipe')
+            recipe = recipe.slug
+
+        # Alice is a visitor who visits the page of a recipe
+        self.browser.get(self.server_url + '/recept/' + recipe + '/')
+
+        # There is a tweet button on the page, she clicks it
+        button = self.browser.find_element_by_class_name(
+                'twitter-share-button-rendered')
+        self.browser.switch_to_frame(button.get_attribute('id'))
+        tweet = self.browser.find_element_by_id('b')
+        tweet.click()
+        self.browser.switch_to_default_content()
+
+        # A popup from Twitter opens
+        self.wait_for(lambda:
+                self.assertGreater(len(self.browser.window_handles), 1))
+        self.browser.switch_to_window(self.browser.window_handles[1])
+
+        # Check if the text area has some info in it
+        textarea = self.browser.find_element_by_tag_name('textarea')
+        self.assertIn('Test recipe', textarea.text)
+        self.assertIn(recipe, textarea.text) # check for the recipe url
+        self.assertIn('Vandaag eet ik', textarea.text)

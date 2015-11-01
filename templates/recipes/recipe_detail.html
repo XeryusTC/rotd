@@ -1,5 +1,24 @@
 {% extends 'base.html' %}
 
+{% block extra_script %}
+<script>window.twttr = (function(d, s, id) {
+	var js, fjs = d.getElementsByTagName(s)[0],
+		t = window.twttr || {};
+	if (d.getElementById(id)) return t;
+	js = d.createElement(s);
+	js.id = id;
+	js.src = "https://platform.twitter.com/widgets.js";
+	fjs.parentNode.insertBefore(js, fjs);
+
+	t._e = [];
+	t.ready = function(f) {
+		t._e.push(f);
+	};
+
+	return t;
+	}(document, "script", "twitter-wjs"));</script>
+{% endblock %}
+
 {% block page_title %}
 	{% if is_homepage %}
 		Recept van de dag
@@ -16,6 +35,11 @@
 		<h1> Recept informatie</h1>
 	{% endif %}
 	<h2 id="recipe">{{ recipe.name }}</h2>
+
+	<a class="twitter-share-button" href="https://twitter.com/intent/tweet"
+		data-text="Vandaag eet ik {{ recipe.name}}"
+		data-url="https://{{ request.get_host }}{% url 'recipes:recipe' recipe.slug %}"
+		data-via="XeryusTC">Tweet</a>
 </div>
 
 <div id="ingredients">
