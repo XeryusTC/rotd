@@ -18,10 +18,17 @@
 from selenium.webdriver.common.keys import Keys
 from unittest import skip
 from .base import FunctionalTestCase
+import recipes.factories
 
 class ContactPageTests(FunctionalTestCase):
 
     def test_navbar(self):
+        # Create dummy recipe
+        if self.against_staging:
+            create_testrecipe_on_server(self.server_host, 'Test recipe')
+        else:
+            recipes.factories.RecipeFactory()
+
         # Alice is a visitor who sees a navbar on the page with two links
         self.browser.get(self.server_url)
         navbar = self.browser.find_element_by_tag_name('nav')
