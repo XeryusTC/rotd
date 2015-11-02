@@ -17,19 +17,17 @@
 
 from django.db import models
 from django.template.defaultfilters import slugify
-from django.utils import timezone
 
 class Recipe(models.Model):
     name = models.CharField(max_length=64, blank=False, default='',
             unique=True)
     description = models.TextField(default='')
-    add_date = models.DateField(editable=False)
+    add_date = models.DateField(auto_now_add=True)
     slug = models.SlugField(default='', unique=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:
             self.slug = slugify(self.name)
-            self.add_date = timezone.now()
         super(Recipe, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
