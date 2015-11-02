@@ -62,6 +62,10 @@ def update_settings():
     _settings_prompt()
     _deploy_settings_file()
 
+def restart():
+    _setup_variables()
+    sudo('service gunicorn-{host} restart'.format(host=env.host))
+
 def _get_enable_var():
     try:
         return env.enable
