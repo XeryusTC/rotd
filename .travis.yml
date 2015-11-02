@@ -1,0 +1,24 @@
+language: python
+python:
+    - "3.3"
+    - "3.4"
+    - "3.5"
+services:
+    - postgresql
+addons:
+    postgresql: "9.3"
+env:
+    global:
+        - DJANGO_SETTINGS_MODULE="rotd.settings.ci"
+install:
+    - sudo pip install -r requirements/test.txt
+before_script:
+    # set up postgresql
+    - psql -c "CREATE DATABASE wzive_ci" -U postgres
+    # start xvfb
+    - "export DISPLAY=:99.0"
+    - "sh -3 /etc/init.d/xvfb start"
+    - sleep 3 # allow xvfb some time to start
+script:
+    - python manage.py test recipes comman
+    - python manage.py test functional_tests
