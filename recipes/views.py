@@ -26,9 +26,9 @@ from recipes.models import Recipe
 
 def todays_recipe(day=datetime.date.today()):
     try:
-        target = (day.month * day.day + day.year) % \
-            Recipe.objects.filter(add_date__lt=datetime.date.today()).count()
-        return Recipe.objects.order_by('id')[target]
+        li = Recipe.objects.filter(add_date__lt=datetime.date.today()
+                ).order_by('id')
+        return li[(day.month * day.day + day.year) % len(li)]
     except ZeroDivisionError:
         pass
 
