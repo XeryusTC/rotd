@@ -54,7 +54,7 @@ class FunctionalTestCase(StaticLiveServerTestCase):
             self.browser.switch_to_window(handle)
             self.browser.close()
 
-    def wait_for(self, func, timeout=DEFAULT_WAIT):
+    def wait_for(self, func, timeout=DEFAULT_WAIT): #pragma: no cover
         start_time = time.time()
         while time.time() - start_time < timeout:
             try:
