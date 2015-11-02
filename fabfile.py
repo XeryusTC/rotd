@@ -153,21 +153,29 @@ def _deploy_settings_file():
             env.email_pass))
 
     if enable:
-        put('envvars', '/etc/default/gunicorn-{}'.format(env.host),
+        sudo('mkdir -p /etc/www')
+        put('envvars', '/etc/www/gunicorn-{}'.format(env.host),
                 use_sudo=True, mode=0640)
-        sudo('chown {user}:www-data /etc/default/gunicorn-{host}'.format(
+        sudo('chown {user}:www-data /etc/www/gunicorn-{host}'.format(
                 user=env.user, host=env.host))
         with settings(warn_only=True):
             sudo('systemctl restart gunicorn-{}.service'.format(env.host))
 
 def _get_remote_settings():
     """Get the EnvironmentFile from the host and return it as a dictonary"""
-    if not exists('/etc/default/gunicorn-{}'.format(env.host)):
-        return None
+    if not exists('etc/www/gunicorn-{}'.format(env.host)):
+        # Try the legacy file
+        if exists('/etc/default/gunicorn-{}'.format(env.host)):
+            print("Using the legacy settings file")
+            get('/etc/default/gunicorn-{}'.format(env.host),
+                    '/tmp/%(host)s/envvars')
+        else:
+            return None
+    else:
+        get('/etc/www/gunicorn-{}'.format(env.host),
+                '/tmp/%(host)s/envvars')#, use_sudo=True)
     setting_re = re.compile(r'([A-Z_]+)="(.*)"')
     settings = {}
-    get('/etc/default/gunicorn-{}'.format(env.host), '/tmp/%(host)s/envvars')#,
-            #use_sudo=True)
     with open('/tmp/{}/envvars'.format(env.host), 'r') as f:
         for line in f.readlines():
             m = re.search(setting_re, line)
@@ -237,7 +245,7 @@ def _update_virtualenv(folder):
         folder + '/source'))
 
 def _update_static_files(source_folder):
-    with prefix('export $(cat /etc/default/gunicorn-{host}|xargs)'.format(
+    with prefix('export $(cat /etc/www/gunicorn-{host}|xargs)'.format(
         host=env.host)):
         run('cd %s && ../virtualenv/bin/python3 manage.py collectstatic \
                 --noinput' % (source_folder,))
@@ -260,7 +268,7 @@ def _setup_database():
 
 
 def _update_database(source_folder):
-    with prefix('export $(cat /etc/default/gunicorn-{host}|xargs)'.format(
+    with prefix('export $(cat /etc/www/gunicorn-{host}|xargs)'.format(
         host=env.host)):
         run('cd %s && ../virtualenv/bin/python3 manage.py migrate --noinput' % (
             source_folder,))
