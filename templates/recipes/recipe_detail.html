@@ -36,10 +36,12 @@
 	{% endif %}
 	<h2 id="recipe">{{ recipe.name }}</h2>
 
-	<a class="twitter-share-button" href="https://twitter.com/intent/tweet"
-		data-text="Vandaag eet ik {{ recipe.name}}"
-		data-url="https://{{ request.get_host }}{% url 'recipes:recipe' recipe.slug %}"
-		data-via="XeryusTC">Tweet</a>
+	{% if recipe %}
+		<a class="twitter-share-button" href="https://twitter.com/intent/tweet"
+			data-text="Vandaag eet ik {{ recipe.name}}"
+			data-url="https://{{ request.get_host }}{% url 'recipes:recipe' recipe.slug %}"
+			data-via="XeryusTC">Tweet</a>
+	{% endif %}
 </div>
 
 <div id="ingredients">

@@ -103,6 +103,7 @@ class EveryDayNewRecipeTest(unittest.TestCase):
 
     @patch('recipes.views.todays_recipe')
     def test_home_page_uses_recipe_selector_new(self, mock_todays_recipe):
+        mock_todays_recipe.return_value = factories.RecipeFactory()
         response = home_page(RequestFactory().get('/'))
         self.assertTrue(mock_todays_recipe.called)
 
