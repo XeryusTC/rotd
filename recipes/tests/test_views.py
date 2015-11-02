@@ -120,7 +120,7 @@ class EveryDayNewRecipeTest(unittest.TestCase):
         before.name = 'Changed name'
         before.save()
         after = todays_recipe(today)
-        self.assertEqual(before, after)
+        self.assertEqual(before.pk, after.pk)
 
 
 class ContactPageTest(TestCase):

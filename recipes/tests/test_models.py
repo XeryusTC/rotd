@@ -110,7 +110,7 @@ class IngredientModelTests(TestCase):
         i.full_clean()
 
     def test_ingredient_type_doesnt_accept_invalid_types(self):
-        i = factories.IngredientFactory(type='This type doesnt exist')
+        i = factories.IngredientFactory(type='NO')
         with self.assertRaises(ValidationError):
             i.full_clean()
 
