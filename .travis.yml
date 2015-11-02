@@ -13,6 +13,7 @@ env:
 sudo: false
 install:
     - pip install -r requirements/test.txt
+    - pip install coveralls
 before_script:
     # set up postgresql
     - psql -c "CREATE DATABASE wzive_ci" -U postgres
@@ -21,5 +22,7 @@ before_script:
     - "sh -e /etc/init.d/xvfb start"
     - sleep 3 # allow xvfb some time to start
 script:
-    - python manage.py test recipes common
-    - python manage.py test functional_tests
+    - coverage run -p manage.py test recipes common
+    - coverage run -p manage.py test functional_tests
+after_success:
+    - "coverage combine && coveralls"

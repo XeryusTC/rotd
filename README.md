@@ -3,6 +3,8 @@ Recipe of the Day (ROTD)
 
 A website which shows a new recipe to try out every day.
 
+[![Build Status](https://travis-ci.org/XeryusTC/rotd.svg?branch=master)](https://travis-ci.org/XeryusTC/rotd)
+
 Licence
 -------
 
