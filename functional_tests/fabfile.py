@@ -21,7 +21,7 @@ def _get_base_folder(host):
     return '/var/www/sites/' + host
 
 def _get_manage_py(host):
-    command = ('export $(cat /etc/default/gunicorn-{host}|xargs) && '
+    command = ('export $(cat /etc/www/gunicorn-{host}|xargs) && '
         '{path}/virtualenv/bin/python {path}/source/manage.py '.format(
             host=host, path=_get_base_folder(host)))
     return command
